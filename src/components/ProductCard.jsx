@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
   return (
@@ -9,9 +10,9 @@ const ProductCard = ({ product }) => {
             {product.discount}
           </span>
         )}
-        <a href="#">
+        <Link to={`/product/${product.id}`}>
           <img src={product.image} alt={product.name} className="w-full h-full object-cover transition duration-500 group-hover:scale-110" />
-        </a>
+        </Link>
       </div>
       <div className="p-5 flex-1 flex flex-col">
         <h5 className="font-bold text-lg mb-1 group-hover:text-primary transition line-clamp-1"><a href="#">{product.name}</a></h5>
