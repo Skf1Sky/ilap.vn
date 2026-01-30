@@ -1,7 +1,30 @@
 // src/data.js
 export const PRODUCTS = [
     // --- LAPTOP DATA ---
-    { id: 1, name: "Dell XPS 13 9360", image: "https://laptop88.vn/media/product/pro_poster_4119.jpg", price: 10500000, discount: "Giảm 500K", subtitle: "Vỏ nhôm - Siêu mỏng", specs: ["i5-8250U", "8GB", "256GB"], category: "laptop" },
+    { id: 1, 
+      name: "Dell XPS 13 9360", 
+      image: "https://laptop88.vn/media/product/pro_poster_4119.jpg", 
+      // 👇 THÊM DÒNG NÀY (Mảng chứa 4 ảnh, tạm thời mình dùng ảnh mạng giống nhau để demo)
+      images: [
+        "https://laptop88.vn/media/product/pro_poster_4119.jpg",
+        "https://laptop88.vn/media/product/120_3601_dell_xps_13_9360_4.jpg",
+        "https://laptop88.vn/media/product/120_3601_dell_xps_13_9360_2.jpg",
+        "https://laptop88.vn/media/product/120_3601_dell_xps_13_9360_5.jpg"
+      ],
+      video: "https://www.youtube.com/embed/S2nZ3i5K0sM",
+      price: 10500000, 
+      discount: "Giảm 500K", 
+      subtitle: "Vỏ nhôm - Siêu mỏng", 
+      specs: [
+      "i5-8250U",   // 1. CPU
+      "8GB RAM",    // 2. RAM
+      "256GB SSD",  // 3. Ổ cứng
+      "14 inch FHD",// 4. Màn hình
+      "Intel UHD",  // 5. VGA
+      "1.2 kg"      // 6. Cân nặng
+  ],
+      category: "laptop" 
+    },
     { id: 2, name: "HP Envy 13 Gold", image: "https://cdn.tgdd.vn/Products/Images/44/231244/hp-envy-13-ba1027tu-i5-2k0b1pa-18-600x600.jpg", price: 11200000, discount: null, subtitle: "Sang trọng - Loa hay", specs: ["i7-8565U", "8GB", "512GB"], category: "laptop" },
     { id: 3, name: "ThinkPad T480s", image: "https://mac24h.vn/images/detailed/45/ThinkPad_T480s_mac24h.jpg", price: 7900000, discount: "Mới về", subtitle: "Bền bỉ - Phím ngon", specs: ["i5-8350U", "16GB", "256GB"], category: "laptop" },
     { id: 4, name: "Asus VivoBook A515", image: "https://cdn.tgdd.vn/Products/Images/44/253997/asus-vivobook-a515ea-i5-l12032t-271021-024502-600x600.jpg", price: 9500000, discount: null, subtitle: "Màn 15.6 - Trẻ trung", specs: ["i5-1135G7", "8GB", "512GB"], category: "laptop" },
