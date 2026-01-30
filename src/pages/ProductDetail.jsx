@@ -102,8 +102,8 @@ const ProductDetail = () => {
                   <h4 className="text-red-600 font-bold uppercase text-sm mb-3 flex items-center"><i className="fas fa-gift mr-2 text-lg"></i> Quà tặng & Ưu đãi</h4>
                   <ul className="text-sm space-y-2 text-gray-700 ml-1">
                      <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Tặng Balo chống sốc cao cấp.</li>
-                     <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Tặng Chuột không dây Logitech.</li>
-                     <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Cài đặt Windows bản quyền trọn đời.</li>
+                     <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Tặng Chuột không dây Darue</li>
+                     <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Cài đặt phần mềm miễn phí 1 năm</li>
                   </ul>
                </div>
 
