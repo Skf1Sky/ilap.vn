@@ -1,0 +1,1 @@
+mongodb+srv://mern-book-store:<db_password>@cluster0.d63sq.mongodb.net/?appName=Cluster0
