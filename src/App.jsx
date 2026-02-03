@@ -1,39 +1,62 @@
 import React from 'react';
-// 👇 THÊM useLocation VÀO DÒNG NÀY
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
+// Import Layout & Pages KHÁCH
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import ProductDetail from './pages/ProductDetail'; 
+import ProductDetail from './pages/ProductDetail';
+import ProductList from './pages/admin/ProductList';
 
-// Component ScrollToTop (Đã sửa lại đúng chuẩn)
+// Import Layout & Pages ADMIN
+import AdminLayout from './components/admin/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+
+// ScrollToTop component
 const ScrollToTop = () => {
-    const { pathname } = useLocation(); // ✅ Dùng useLocation trực tiếp, không có React. ở trước
-    
-    React.useEffect(() => { 
-        window.scrollTo(0, 0); 
-    }, [pathname]);
-    
-    return null;
+  const { pathname } = useLocation();
+  React.useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+};
+
+// Layout cho khách (Có Header/Footer)
+const PublicLayout = ({ children }) => {
+  return (
+    <div className="font-sans text-gray-700 bg-gray-50">
+      <Header />
+      {children}
+      <Footer />
+    </div>
+  );
 };
 
 function App() {
   return (
     <BrowserRouter>
-      {/* ScrollToTop đặt ở đây để mỗi khi đổi link là cuộn lên đầu */}
-      <ScrollToTop /> 
+      <ScrollToTop />
 
-      <div className="font-sans text-gray-700 bg-gray-50">
-        <Header />
-        
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-        </Routes>
+      <Routes>
+        {/* --- KHU VỰC KHÁCH HÀNG (PUBLIC) --- */}
+        <Route path="/" element={
+          <PublicLayout>
+            <Home />
+          </PublicLayout>
+        } />
 
-        <Footer />
-      </div>
+        <Route path="/product/:id" element={
+          <PublicLayout>
+            <ProductDetail />
+          </PublicLayout>
+        } />
+
+        {/* --- KHU VỰC ADMIN (RIÊNG BIỆT) --- */}
+        <Route path="/admin" element={<AdminLayout />}>
+          {/* Vào /admin sẽ hiện Dashboard */}
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<ProductList />} />
+        </Route>
+
+      </Routes>
     </BrowserRouter>
   );
 }
