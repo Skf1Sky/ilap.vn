@@ -19,17 +19,32 @@ mongoose.connect(MONGO_URL)
 const ProductSchema = new mongoose.Schema({
     name: String,
     price: Number,
-    image: String,
-    category: String, // 'laptop' | 'pc'
+    
+    // 👇 SỬA DÒNG NÀY: Thay image: String thành images: [String] (Mảng chứa chữ)
+    images: [String], 
+    
+    category: String,
     discount: String,
     video: String,
     inStock: { type: Boolean, default: true },
-    specs: [String], // Mảng chứa cấu hình (CPU, RAM...) đã gộp
+    specs: [String],
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', ProductSchema);
 
 // 3. TẠO API (Để React gọi vào)
+
+// API Đăng nhập đơn giản (Hardcode tài khoản để test cho nhanh)
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    // Bạn tự quy định tài khoản mật khẩu ở đây
+    if (username === 'admin' && password === 'admin123') {
+        res.json({ success: true, message: "Đăng nhập thành công!" });
+    } else {
+        res.status(401).json({ success: false, message: "Sai tài khoản hoặc mật khẩu!" });
+    }
+});
 
 // Lấy danh sách
 app.get('/products', async (req, res) => {
