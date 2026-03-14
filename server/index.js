@@ -8,7 +8,8 @@ app.use(cors()); // Cho phép React truy cập
 
 // 1. KẾT NỐI MONGODB (Thay chuỗi kết nối bạn vừa lấy ở bước Drivers vào đây)
 // Lưu ý: Thay <password> bằng mật khẩu user database bạn đã tạo
-const MONGO_URL = "mongodb+srv://admin:Thienvip1@cluster0.d63sq.mongodb.net/ilap_shop?appName=Cluster0";
+// 🛠️ Sửa lại dòng 11 thành:
+const MONGO_URL = "mongodb://admin:Thienvip1@192.168.1.30:27017/ilap_shop?authSource=admin";
 
 mongoose.connect(MONGO_URL)
     .then(() => console.log("✅ Đã kết nối MongoDB thành công!"))
