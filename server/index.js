@@ -38,8 +38,10 @@ const Product = mongoose.model('Product', ProductSchema);
 // API Đăng nhập đơn giản (Hardcode tài khoản để test cho nhanh)
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
+    
+    // 👇 THÊM DÒNG NÀY ĐỂ SOI LOG
+    console.log("Thử đăng nhập với:", username, "| Pass:", password);
 
-    // Bạn tự quy định tài khoản mật khẩu ở đây
     if (username === 'admin' && password === 'admin123') {
         res.json({ success: true, message: "Đăng nhập thành công!" });
     } else {

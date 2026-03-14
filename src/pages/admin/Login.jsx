@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Gọi API login ở Server
-      const res = await axios.post('http://localhost:5000/login', { username, password });
+      const res = await axios.post('http://192.168.1.20:5000/login', { username, password });
       
       if (res.data.success) {
         // Lưu "thẻ bài" vào máy người dùng
