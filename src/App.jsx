@@ -13,7 +13,7 @@ import ProductList from './pages/admin/ProductList';
 import Login from './pages/admin/Login'; // Nhớ tạo file Login.jsx trước nhé
 
 // URL Backend Node.js
-const API_URL = "http://192.168.1.20:5000/products";
+const API_URL = "http://database.ntcomp.site/products";
 
 // Component cuộn lên đầu trang khi chuyển trang
 const ScrollToTop = () => {
