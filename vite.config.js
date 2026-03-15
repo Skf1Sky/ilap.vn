@@ -6,6 +6,15 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: ['ilap.ntcomp.site'] 
+
+    allowedHosts: ['ilap.ntcomp.site'],
+
+    proxy: {
+      '/api': {
+        target: 'http://192.168.1.20:5000',
+        changeOrigin: true,
+        secure: false
+      }
+    }
   }
 })

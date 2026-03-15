@@ -1,13 +1,12 @@
-// src/pages/Home.jsx
-import React, { useState } from 'react';
-import Hero from '../components/Hero'; // Nhớ import Hero
-import ProductCard from '../components/ProductCard'; // Nhớ import ProductCard
-import { PRODUCTS } from '../data'; // Import dữ liệu từ file vừa tạo
+import React, { useState, useEffect } from 'react'; // 1. Thêm useEffect
+import axios from 'axios'; // 2. Thêm axios
+import Hero from '../components/Hero';
+import ProductCard from '../components/ProductCard';
 
 const Home = () => {
-  // Lọc dữ liệu gốc từ file data.js
-  const allLaptops = PRODUCTS.filter(p => p.category === 'laptop');
-  const allPCs = PRODUCTS.filter(p => p.category === 'pc');
+  // 3. Khởi tạo state để chứa dữ liệu từ API
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Logic hiển thị Xem thêm / Thu gọn
   const [visibleLaptops, setVisibleLaptops] = useState(4);
@@ -15,31 +14,51 @@ const Home = () => {
   const INCREMENT = 4;
   const MAX_DISPLAY = 12;
 
+  // 4. Gọi API lấy dữ liệu khi trang web vừa tải
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get('http://192.168.1.20:5000/products');
+        setAllProducts(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Lỗi lấy dữ liệu từ MongoDB:", err);
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // 5. Lọc dữ liệu từ State thay vì biến PRODUCTS cũ
+  const allLaptops = allProducts.filter(p => p.category === 'laptop');
+  const allPCs = allProducts.filter(p => p.category === 'pc');
+
   const handleToggleLaptop = () => {
     if (visibleLaptops >= MAX_DISPLAY || visibleLaptops >= allLaptops.length) {
-        setVisibleLaptops(4); // Thu gọn
+        setVisibleLaptops(4);
     } else {
-        setVisibleLaptops(prev => prev + INCREMENT); // Xem thêm
+        setVisibleLaptops(prev => prev + INCREMENT);
     }
   };
 
   const handleTogglePC = () => {
     if (visiblePCs >= MAX_DISPLAY || visiblePCs >= allPCs.length) {
-        setVisiblePCs(4); // Thu gọn
+        setVisiblePCs(4);
     } else {
-        setVisiblePCs(prev => prev + INCREMENT); // Xem thêm
+        setVisiblePCs(prev => prev + INCREMENT);
     }
   };
+
+  // Nếu đang tải dữ liệu thì hiện thông báo
+  if (loading) return <div className="text-center py-20">Đang tải dữ liệu từ máy chủ...</div>;
 
   return (
     <div>
       <Hero />
       
       {/* ================= LAPTOP ZONE ================= */}
-      {/* Có -mt-24 để chồng lên Hero */}
       <section className="relative z-20 px-4 -mt-24 pb-16"> 
         <div className="container mx-auto">
-          
           <div className="bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] p-8 border border-gray-100">
             <div className="flex flex-col md:flex-row justify-between items-center border-b border-gray-100 pb-6 mb-8">
                <div className="flex items-center gap-4">
@@ -62,7 +81,8 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {allLaptops.slice(0, visibleLaptops).map(p => <ProductCard key={p.id} product={p} />)}
+              {/* Lưu ý: Dùng p._id vì MongoDB trả về _id */}
+              {allLaptops.slice(0, visibleLaptops).map(p => <ProductCard key={p._id} product={p} />)}
             </div>
 
             <div className="text-center mt-10">
@@ -84,10 +104,7 @@ const Home = () => {
       {/* ================= PC ZONE ================= */}
       <section className="px-4 pb-16">
         <div className="container mx-auto">
-          
-          {/* Style thẻ y hệt Laptop */}
           <div className="bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] p-8 border border-gray-100">
-            
             <div className="flex flex-col md:flex-row justify-between items-center border-b border-gray-100 pb-6 mb-8">
                <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-primary text-xl">
@@ -109,7 +126,7 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {allPCs.slice(0, visiblePCs).map(p => <ProductCard key={p.id} product={p} />)}
+              {allPCs.slice(0, visiblePCs).map(p => <ProductCard key={p._id} product={p} />)}
             </div>
 
             <div className="text-center mt-12">
@@ -125,7 +142,6 @@ const Home = () => {
                 </button>
             </div>
           </div>
-
         </div>
       </section>
     </div>
