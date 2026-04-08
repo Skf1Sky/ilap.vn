@@ -88,7 +88,7 @@ const uploadHandler = async (req, res) => {
             const uploadPromises = files.map(async (file) => {
                 const fileName = `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`;
                 await minioClient.putObject(BUCKET_NAME, fileName, file.buffer, { 'Content-Type': file.mimetype });
-                return `https://minio.ntcomp.site/${BUCKET_NAME}/${fileName}`;
+                return `https://s3.ntcomp.site/${BUCKET_NAME}/${fileName}`;
             });
             const uploadedUrls = await Promise.all(uploadPromises);
             imageUrls.push(...uploadedUrls);
@@ -130,7 +130,7 @@ const updateHandler = async (req, res) => {
             const uploadPromises = files.map(async (file) => {
                 const fileName = `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`;
                 await minioClient.putObject(BUCKET_NAME, fileName, file.buffer, { 'Content-Type': file.mimetype });
-                return `https://minio.ntcomp.site/${BUCKET_NAME}/${fileName}`;
+                return `https://s3.ntcomp.site/${BUCKET_NAME}/${fileName}`;
             });
             const uploadedUrls = await Promise.all(uploadPromises);
             imageUrls.push(...uploadedUrls);
@@ -177,8 +177,27 @@ app.delete('/products/:id', async (req, res) => {
 });
 
 app.get("/api/products", async (req, res) => {
-    const data = await Product.find();
-    res.json(data);
+    try {
+        // Lấy dữ liệu thuần túy (lean) và sắp xếp từ mới nhất xuống cũ nhất qua _id
+        const data = await Product.find().sort({ _id: -1 }).lean();
+        
+        const fixedData = data.map(p => {
+            const safeImages = Array.isArray(p.images) ? p.images : [];
+            const newImages = safeImages.map(url => {
+                // Biến hóa phép màu: Đổi tất cả ảnh lúc trước từng bị nhầm tên miền sang tên miền mới s3 lập tức
+                if (typeof url === 'string' && url.includes('minio.ntcomp.site')) {
+                    return url.replace('minio.ntcomp.site', 's3.ntcomp.site');
+                }
+                return url;
+            });
+            return { ...p, images: newImages };
+        });
+        
+        res.json(fixedData);
+    } catch (err) {
+        console.error("Lỗi khi kéo danh sách SP:", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 const PORT = 5000;
