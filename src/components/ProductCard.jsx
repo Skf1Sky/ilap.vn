@@ -51,16 +51,16 @@ const ProductCard = ({ product }) => {
                     <div 
                         key={i} 
                         className={`
-                            flex flex-col items-center justify-center p-2 h-[55px]
+                            flex flex-col items-center justify-center px-1 py-3 min-h-[65px]
                             ${!isLastInRow ? 'border-r border-gray-100' : ''}  /* Chỉ gạch dọc bên trong */
                             ${isFirstRow ? 'border-b border-gray-100' : ''}    /* Chỉ gạch ngang bên trong */
                         `}
                     >
                        {/* Icon */}
-                       <i className={`fas ${icons[i] || 'fa-circle'} text-[10px] mb-1 ${spec ? 'text-gray-400' : 'text-gray-200'}`}></i>
+                       <i className={`fas ${icons[i] || 'fa-circle'} text-[14px] mb-1.5 ${spec ? 'text-gray-400' : 'text-gray-200'}`}></i>
                        
                        {/* Text */}
-                       <span className={`text-[10px] font-medium text-center leading-tight line-clamp-2 ${spec ? 'text-gray-600' : 'text-transparent select-none'}`}>
+                       <span className={`text-[12px] font-bold text-center leading-tight line-clamp-2 ${spec ? 'text-gray-700' : 'text-transparent select-none'}`}>
                           {spec || "-"}
                        </span>
                     </div>
