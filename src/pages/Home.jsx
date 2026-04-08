@@ -54,9 +54,9 @@ const Home = ({ products }) => {
               </div>
 
               <div className="mt-4 md:mt-0">
-                <a href="#" className="flex items-center text-sm font-bold text-gray-500 hover:text-primary transition group">
+                <Link to="/laptops" className="flex items-center text-sm font-bold text-gray-500 hover:text-primary transition group">
                   Xem tất cả <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
-                </a>
+                </Link>
               </div>
             </div>
 

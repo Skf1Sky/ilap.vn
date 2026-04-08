@@ -7,6 +7,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
+import AllLaptops from './pages/AllLaptops';
 import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import ProductList from './pages/admin/ProductList';
@@ -186,6 +187,12 @@ function App() {
         <Route path="/" element={
           <PublicLayout>
             <Home products={products} />
+          </PublicLayout>
+        } />
+
+        <Route path="/laptops" element={
+          <PublicLayout>
+            <AllLaptops products={products} />
           </PublicLayout>
         } />
 

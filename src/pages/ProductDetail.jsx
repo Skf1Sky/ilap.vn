@@ -1,53 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios'; // 1. Thêm axios
 import ProductCard from '../components/ProductCard';
 
-const ProductDetail = () => {
-  const { id } = useParams(); // id này bây giờ sẽ là chuỗi _id của MongoDB
+const ProductDetail = ({ products }) => {
+  const { id } = useParams(); // id từ URL
   
-  const [product, setProduct] = useState(null);
-  const [relatedProducts, setRelatedProducts] = useState([]);
   const [activeImage, setActiveImage] = useState('');
-  const [loading, setLoading] = useState(true); // Thêm trạng thái chờ
+
+  // Tìm sản phẩm trực tiếp từ state chung
+  const product = products.find(p => p.id === id || p._id === id);
+  
+  // Tìm sản phẩm liên quan
+  const relatedProducts = product 
+    ? products.filter(p => p.category === product.category && (p.id !== product.id && p._id !== product._id)).slice(0, 4)
+    : [];
 
   useEffect(() => {
-    const fetchProductData = async () => {
-      try {
-        setLoading(true);
-        // 2. Lấy chi tiết sản phẩm từ Backend
-        const res = await axios.get('http://192.168.1.20:5000/products');
-        const allProducts = res.data;
-        
-        // Tìm sản phẩm hiện tại theo _id
-        const foundProduct = allProducts.find(p => p._id === id);
-        
-        if (foundProduct) {
-          setProduct(foundProduct);
-          // Ưu tiên lấy ảnh đầu tiên trong mảng images
-          setActiveImage(foundProduct.images && foundProduct.images.length > 0 
-            ? foundProduct.images[0] 
-            : '');
-          
-          // Tìm sản phẩm liên quan (cùng category, khác _id)
-          const related = allProducts.filter(p => 
-            p.category === foundProduct.category && p._id !== foundProduct._id
-          );
-          setRelatedProducts(related.slice(0, 4));
-        }
-        setLoading(false);
-      } catch (err) {
-        console.error("Lỗi khi lấy chi tiết sản phẩm:", err);
-        setLoading(false);
-      }
-    };
+    window.scrollTo(0, 0); // Cuộn lên cùng khi đổi trang
+    if (product) {
+       // Reset ảnh chính
+       const firstImg = (product.images && product.images.length > 0) ? product.images[0] : product.image;
+       setActiveImage(firstImg || '');
+    }
+  }, [product, id]);
 
-    fetchProductData();
-    window.scrollTo(0, 0);
-  }, [id]);
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Đang tải thông tin sản phẩm...</div>;
+  // Nếu chưa lấy được data (thường là lúc F5)
+  if (!products || products.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center animate-pulse text-gray-500 font-bold">Đang tải thông tin sản phẩm...</div>;
   }
 
   if (!product) {
@@ -94,7 +73,7 @@ const ProductDetail = () => {
                   )}
                   <img src={activeImage} alt={product.name} className="max-w-full max-h-full object-contain transition duration-500 group-hover:scale-105" />
                </div>
-               <div className="grid grid-cols-4 gap-3">
+               <div className="grid grid-cols-4 gap-3 mt-4">
                   {galleryImages.map((img, index) => (
                       <div 
                         key={index}

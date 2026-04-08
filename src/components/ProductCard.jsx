@@ -34,7 +34,7 @@ const ProductCard = ({ product }) => {
 
       {/* THÔNG TIN */}
       <div className="p-4 flex-1 flex flex-col">
-        <h5 className="font-bold text-base mb-1 group-hover:text-primary transition line-clamp-1">
+        <h5 className="font-extrabold text-[17px] mb-2 text-gray-900 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
             <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h5>
         
