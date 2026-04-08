@@ -8,9 +8,12 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import AllLaptops from './pages/AllLaptops';
+import Contact from './pages/Contact';
 import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import ProductList from './pages/admin/ProductList';
+import Orders from './pages/admin/Orders';
+import Customers from './pages/admin/Customers';
 import Login from './pages/admin/Login'; // Nhớ tạo file Login.jsx trước nhé
 
 // URL Backend Node.js
@@ -201,6 +204,12 @@ function App() {
             <ProductDetail products={products} />
           </PublicLayout>
         } />
+        
+        <Route path="/contact" element={
+          <PublicLayout>
+            <Contact />
+          </PublicLayout>
+        } />
 
         {/* KHU VỰC ADMIN (CÓ BẢO VỆ) */}
         <Route path="/admin" element={
@@ -217,6 +226,8 @@ function App() {
               onDelete={deleteProduct}
             />
           } />
+          <Route path="orders" element={<Orders products={products} />} />
+          <Route path="customers" element={<Customers products={products} />} />
         </Route>
       </Routes>
     </BrowserRouter>

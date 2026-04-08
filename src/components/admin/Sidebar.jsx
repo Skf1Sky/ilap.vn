@@ -4,9 +4,9 @@ import { NavLink } from 'react-router-dom';
 const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', path: '/admin', icon: 'fa-tachometer-alt' },
-    { name: 'Sản phẩm', path: '/admin/products', icon: 'fa-box' },
+    { name: 'Kho hàng', path: '/admin/products', icon: 'fa-box' },
     { name: 'Đơn hàng', path: '/admin/orders', icon: 'fa-shopping-cart' },
-    { name: 'Khách hàng', path: '/admin/users', icon: 'fa-users' },
+    { name: 'Khách hàng', path: '/admin/customers', icon: 'fa-users' },
   ];
 
   return (

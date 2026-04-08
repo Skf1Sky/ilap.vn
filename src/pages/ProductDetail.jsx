@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
 import ProductCard from '../components/ProductCard';
 
 const ProductDetail = ({ products }) => {
   const { id } = useParams(); // id từ URL
   
   const [activeImage, setActiveImage] = useState('');
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [orderForm, setOrderForm] = useState({ customerName: '', phone: '' });
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
   // Tìm sản phẩm trực tiếp từ state chung
   const product = products.find(p => p.id === id || p._id === id);
@@ -23,6 +27,27 @@ const ProductDetail = ({ products }) => {
        setActiveImage(firstImg || '');
     }
   }, [product, id]);
+
+  const handleOrderSubmit = async (e) => {
+    e.preventDefault();
+    try {
+        await axios.post('https://database.ntcomp.site/api/orders', {
+            customerName: orderForm.customerName,
+            phone: orderForm.phone,
+            productName: product.name,
+            productId: product._id || product.id,
+            price: product.price
+        });
+        setOrderSuccess(true);
+        setTimeout(() => {
+            setShowOrderModal(false);
+            setOrderSuccess(false);
+            setOrderForm({ customerName: '', phone: '' });
+        }, 3000);
+    } catch (err) {
+        alert("Lỗi kết nối. Vui lòng thử lại sau!");
+    }
+  };
 
   // Nếu chưa lấy được data (thường là lúc F5)
   if (!products || products.length === 0) {
@@ -108,8 +133,9 @@ const ProductDetail = ({ products }) => {
                </div>
 
                <div className="flex flex-col sm:flex-row gap-4">
-                  <button className="flex-1 bg-red-600 hover:bg-red-700 text-white py-4 rounded-lg font-bold uppercase shadow-lg shadow-red-600/30 transition transform hover:-translate-y-1">
-                     <span className="block text-xl"><i className="fas fa-shopping-cart mr-2"></i> Mua Ngay</span>
+                  <button onClick={() => setShowOrderModal(true)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-4 rounded-lg font-bold uppercase shadow-lg shadow-red-600/30 transition transform hover:-translate-y-1">
+                     <span className="block text-xl"><i className="fas fa-shopping-cart mr-2"></i> Đăng Ký Mua</span>
+                     <span className="block text-xs font-normal opacity-80 mt-1">Để lại SĐT, iLap sẽ gọi điện chốt giá tốt nhất</span>
                   </button>
                </div>
             </div>
@@ -179,6 +205,48 @@ const ProductDetail = ({ products }) => {
         </div>
 
       </div>
+        {/* MODAL ĐẶT HÀNG */}
+        {showOrderModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+               <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl relative animate-fadeIn">
+                  <button onClick={() => setShowOrderModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition">
+                      <i className="fas fa-times text-xl"></i>
+                  </button>
+                  {orderSuccess ? (
+                      <div className="text-center py-8">
+                          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                             <i className="fas fa-check"></i>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800 mb-2">Đăng Ký Thành Công!</h3>
+                          <p className="text-gray-600">iLap sẽ sớm liên hệ cho bạn qua SĐT để tư vấn và chốt giá thủ tục trong vòng ít phút nữa.</p>
+                      </div>
+                  ) : (
+                      <form onSubmit={handleOrderSubmit}>
+                          <h3 className="text-2xl font-black text-gray-800 uppercase mb-2 border-b pb-4">
+                              <i className="fas fa-bolt text-red-500 mr-2"></i>Mua Nhanh
+                          </h3>
+                          <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3 mb-6">
+                              <img src={activeImage} className="w-12 h-12 object-contain" alt="sp" />
+                              <div className="text-sm font-bold text-gray-800 line-clamp-2">{product.name}</div>
+                          </div>
+                          <div className="space-y-4 mb-8">
+                              <div>
+                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tên của bạn*</label>
+                                  <input required value={orderForm.customerName} onChange={e => setOrderForm({...orderForm, customerName: e.target.value})} type="text" className="w-full border-b-2 border-gray-300 px-2 py-2 focus:border-red-500 outline-none transition bg-transparent" placeholder="VD: Anh Nam" />
+                              </div>
+                              <div>
+                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Số điện thoại*</label>
+                                  <input required value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} type="tel" className="w-full border-b-2 border-gray-300 px-2 py-2 focus:border-red-500 outline-none transition bg-transparent font-bold text-lg tracking-widest text-blue-800" placeholder="09xxxxxxxx" />
+                              </div>
+                          </div>
+                          <button type="submit" className="w-full bg-red-600 text-white font-bold uppercase text-lg py-3 rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200">
+                             Gửi Đăng Ký
+                          </button>
+                      </form>
+                  )}
+               </div>
+            </div>
+        )}
     </div>
   );
 };

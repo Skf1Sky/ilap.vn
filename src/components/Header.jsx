@@ -75,12 +75,18 @@ const Header = () => {
             {/* MENU DESKTOP */}
             <nav className="hidden lg:block">
                 <ul className="flex gap-8 xl:gap-10">
-                    {['Home', 'Laptop', 'PC - Máy Bàn', 'Linh Kiện', 'Liên Hệ'].map((item) => (
-                        <li key={item}>
-                            <a href="#" className={`relative py-8 font-bold uppercase text-[13px] hover:text-primary transition group ${navTextClass}`}>
-                                {item}
+                    {[
+                      { name: 'Home', path: '/' },
+                      { name: 'Laptop', path: '/laptops' },
+                      { name: 'PC - Máy Bàn', path: '#' },
+                      { name: 'Linh Kiện', path: '#' },
+                      { name: 'Liên Hệ', path: '/contact' }
+                    ].map((item) => (
+                        <li key={item.name}>
+                            <Link to={item.path} className={`relative py-8 font-bold uppercase text-[13px] hover:text-primary transition group ${navTextClass}`}>
+                                {item.name}
                                 <span className="absolute bottom-0 left-1/2 w-0 h-[3px] bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
-                            </a>
+                            </Link>
                         </li>
                     ))}
                 </ul>

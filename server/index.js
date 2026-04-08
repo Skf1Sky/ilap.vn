@@ -28,6 +28,20 @@ const User = mongoose.model("User", new mongoose.Schema({
 const Product = mongoose.model("Product", new mongoose.Schema({
   name: String, price: Number, category: String, images: [String], 
   specs: [String], discount: String, video: String, inStock: { type: Boolean, default: true }
+}, { timestamps: true }));
+
+const Order = mongoose.model("Order", new mongoose.Schema({
+  customerName: String, phone: String, 
+  productName: String, productId: String, price: Number,
+  status: { type: String, default: 'pending' }, // pending, completed, cancelled
+  createdAt: { type: Date, default: Date.now }
+}));
+
+const Customer = mongoose.model("Customer", new mongoose.Schema({
+  name: String, phone: String, 
+  productName: String, productId: String,
+  purchaseDate: Date, warrantyPolicy: String, note: String,
+  createdAt: { type: Date, default: Date.now }
 }));
 
 // 4. Cấu hình MinIO
@@ -198,6 +212,79 @@ app.get("/api/products", async (req, res) => {
         console.error("Lỗi khi kéo danh sách SP:", err);
         res.status(500).json({ success: false, message: err.message });
     }
+});
+
+// --- API XỬ LÝ ĐƠN HÀNG (ORDERS) ---
+app.post("/api/orders", async (req, res) => {
+    try {
+        const newOrder = new Order(req.body);
+        await newOrder.save();
+        res.json({ success: true, order: newOrder });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+app.get("/api/orders", async (req, res) => {
+    try { res.json(await Order.find().sort({ createdAt: -1 })); } 
+    catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.put("/api/orders/:id", async (req, res) => {
+    try {
+        const { status } = req.body;
+        const updated = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+        res.json({ success: true, order: updated });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.delete("/api/orders/:id", async (req, res) => {
+    try {
+        await Order.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// --- API XỬ LÝ KHÁCH HÀNG / BẢO HÀNH (CUSTOMERS) ---
+app.post("/api/customers", async (req, res) => {
+    try {
+        const newCus = new Customer(req.body);
+        await newCus.save();
+        res.json({ success: true, customer: newCus });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
+app.get("/api/customers", async (req, res) => {
+    try { res.json(await Customer.find().sort({ createdAt: -1 })); } 
+    catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.delete("/api/customers/:id", async (req, res) => {
+    try {
+        await Customer.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// --- API THỐNG KÊ (DASHBOARD REAL-TIME) ---
+app.get("/api/stats", async (req, res) => {
+    try {
+        const totalProducts = await Product.countDocuments();
+        const totalCustomers = await Customer.countDocuments();
+        
+        // Tính tổng doanh thu từ những Order có status = 'completed' (Đã chốt)
+        const completedOrders = await Order.find({ status: 'completed' });
+        const totalRevenue = completedOrders.reduce((sum, order) => sum + (order.price || 0), 0);
+        
+        const newOrders = await Order.countDocuments({ status: 'pending' });
+
+        // Lấy 5 đơn hàng rinh nhất
+        const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5);
+
+        res.json({
+            success: true,
+            stats: { totalProducts, totalCustomers, totalRevenue, newOrders },
+            recentOrders
+        });
+    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 const PORT = 5000;
