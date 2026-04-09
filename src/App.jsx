@@ -44,7 +44,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  const { products, addProduct, updateProduct, removeProduct, fetchProducts } = useProducts();
+  const { products, addProduct, updateProduct, removeProduct, fetchProducts, performImportStock, fetchInventoryLogs } = useProducts();
 
   useEffect(() => {
     fetchProducts();
@@ -94,7 +94,9 @@ function App() {
               products={products}
               onAdd={addProduct}
               onUpdate={updateProduct}
-              onDelete={deleteProduct}
+              onDelete={removeProduct}
+              onImportStock={performImportStock}
+              fetchInventoryLogs={fetchInventoryLogs}
             />
           } />
           <Route path="orders" element={<Orders products={products} />} />
