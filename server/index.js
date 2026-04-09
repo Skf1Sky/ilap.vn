@@ -1,8 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const Minio = require('minio');
-const multer = require('multer');
+
+// Import cấu hình external modules
+const { initMinioBucket } = require('./config/minio');
+
+// Import routes
+const authRoutes = require('./routes/authRoutes');
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const customerRoutes = require('./routes/customerRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 const app = express();
 
@@ -20,272 +28,23 @@ mongoose.connect(MONGO_URL)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-// 3. Models
-const User = mongoose.model("User", new mongoose.Schema({
-  username: String, password: String, role: { type: String, default: "admin" }
-}));
-
-const Product = mongoose.model("Product", new mongoose.Schema({
-  name: String, price: Number, category: String, images: [String], 
-  specs: [String], discount: String, video: String, inStock: { type: Boolean, default: true }
-}, { timestamps: true }));
-
-const Order = mongoose.model("Order", new mongoose.Schema({
-  customerName: String, phone: String, 
-  productName: String, productId: String, price: Number,
-  status: { type: String, default: 'pending' }, // pending, completed, cancelled
-  createdAt: { type: Date, default: Date.now }
-}));
-
-const Customer = mongoose.model("Customer", new mongoose.Schema({
-  name: String, phone: String, 
-  productName: String, productId: String,
-  purchaseDate: Date, warrantyPolicy: String, note: String,
-  createdAt: { type: Date, default: Date.now }
-}));
-
-// 4. Cấu hình MinIO
-const minioClient = new Minio.Client({
-    endPoint: '192.168.1.40', 
-    port: 9000,
-    useSSL: false, // Trong mạng LAN dùng false
-    accessKey: 'Lv58H5x4PiM9dnQcuYgt', 
-    secretKey: 'CKKYXEZ3HuVAINXIQynBb3eIdGoyX0LPa8B1Vjj6', 
-    pathStyle: true 
-});
-
-const BUCKET_NAME = 'ilap-images';
-const upload = multer({ storage: multer.memoryStorage() });
-
-// Hàm khởi tạo Bucket
-async function initMinioBucket() {
-    try {
-        const exists = await minioClient.bucketExists(BUCKET_NAME);
-        if (!exists) {
-            await minioClient.makeBucket(BUCKET_NAME, 'us-east-1');
-            const policy = {
-                Version: "2012-10-17",
-                Statement: [{
-                    Effect: "Allow", Principal: "*", Action: ["s3:GetObject"],
-                    Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`]
-                }]
-            };
-            await minioClient.setBucketPolicy(BUCKET_NAME, JSON.stringify(policy));
-            console.log(`🔓 MinIO: Đã tạo & mở khóa bucket "${BUCKET_NAME}"`);
-        } else {
-            console.log(`✅ MinIO: Bucket "${BUCKET_NAME}" đã sẵn sàng.`);
-        }
-    } catch (err) { console.error("❌ MinIO init error:", err.message); }
-}
+// 3. Khởi tạo MinIO
 initMinioBucket();
 
-// 5. Routes
+// 4. Routes chính
 app.get("/", (req, res) => res.send("🚀 API is running perfectly!"));
 
-app.post("/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-    if (!user || user.password !== password) return res.status(401).json({ success: false, message: "Sai tài khoản hoặc mật khẩu" });
-    res.json({ success: true, message: "Login success", role: user.role });
-  } catch (err) { res.status(500).json({ success: false }); }
-});
+// Lưu ý /api/auth chứa login và seed-admin
+app.use('/api/auth', authRoutes);
 
-// ROUTE CHÍNH ĐỂ UP SẢN PHẨM
-const uploadHandler = async (req, res) => {
-    try {
-        const { name, price, category, specs, discount, video, inStock } = req.body;
-        const files = req.files;
-        const imageUrls = [];
+// Đăng ký cả 2 đường dẫn products theo như cũ (do frontend dùng '/api/products' hoặc '/products')
+// Tuy nhiên frontend trong App.jsx đang dùng '/api/products', tôi sẽ dùng chung '/api'
+app.use('/api/products', productRoutes);
+app.use('/products', productRoutes); // Alias cho frontend hoặc code cũ 
 
-        if (files && files.length > 0) {
-            const uploadPromises = files.map(async (file) => {
-                const fileName = `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`;
-                await minioClient.putObject(BUCKET_NAME, fileName, file.buffer, { 'Content-Type': file.mimetype });
-                return `https://s3.ntcomp.site/${BUCKET_NAME}/${fileName}`;
-            });
-            const uploadedUrls = await Promise.all(uploadPromises);
-            imageUrls.push(...uploadedUrls);
-        }
-
-        let parsedSpecs = [];
-        try { parsedSpecs = typeof specs === 'string' ? JSON.parse(specs) : specs; } catch(e) { parsedSpecs = [specs]; }
-
-        const newProduct = new Product({
-            name, price: Number(price), category, images: imageUrls,
-            specs: parsedSpecs, discount, video, inStock: String(inStock) === 'true'
-        });
-
-        await newProduct.save();
-        res.json({ success: true, product: newProduct });
-    } catch (err) {
-        console.error("Lỗi:", err);
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-// Đăng ký cả 2 đường dẫn để tránh lỗi 404
-app.post('/api/products', upload.array('images', 4), uploadHandler);
-app.post('/products', upload.array('images', 4), uploadHandler);
-
-// ROUTE CẬP NHẬT SẢN PHẨM
-const updateHandler = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, price, category, specs, discount, video, inStock } = req.body;
-        
-        let oldImages = [];
-        try { oldImages = typeof req.body.oldImages === 'string' ? JSON.parse(req.body.oldImages) : (req.body.oldImages || []); } catch(e) { oldImages = []; }
-        
-        const files = req.files;
-        let imageUrls = [...oldImages];
-
-        if (files && files.length > 0) {
-            const uploadPromises = files.map(async (file) => {
-                const fileName = `${Date.now()}-${file.originalname.replace(/\s/g, '-')}`;
-                await minioClient.putObject(BUCKET_NAME, fileName, file.buffer, { 'Content-Type': file.mimetype });
-                return `https://s3.ntcomp.site/${BUCKET_NAME}/${fileName}`;
-            });
-            const uploadedUrls = await Promise.all(uploadPromises);
-            imageUrls.push(...uploadedUrls);
-        }
-
-        let parsedSpecs = [];
-        try { parsedSpecs = typeof specs === 'string' ? JSON.parse(specs) : specs; } catch(e) { parsedSpecs = [specs]; }
-
-        const updatedProduct = await Product.findByIdAndUpdate(id, {
-            name, price: Number(price), category, images: imageUrls,
-            specs: parsedSpecs, discount, video, inStock: String(inStock) === 'true'
-        }, { new: true });
-
-        res.json({ success: true, product: updatedProduct });
-    } catch (err) {
-        console.error("Lỗi cập nhật:", err);
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-app.put('/api/products/:id', upload.array('images', 4), updateHandler);
-app.put('/products/:id', upload.array('images', 4), updateHandler);
-
-// ROUTE XÓA SẢN PHẨM
-app.delete('/api/products/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        await Product.findByIdAndDelete(id);
-        res.json({ success: true, message: "Xóa thành công" });
-    } catch (err) {
-        console.error("Lỗi xóa:", err);
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-app.delete('/products/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        await Product.findByIdAndDelete(id);
-        res.json({ success: true, message: "Xóa thành công" });
-    } catch (err) {
-        console.error("Lỗi xóa:", err);
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-app.get("/api/products", async (req, res) => {
-    try {
-        // Lấy dữ liệu thuần túy (lean) và sắp xếp từ mới nhất xuống cũ nhất qua _id
-        const data = await Product.find().sort({ _id: -1 }).lean();
-        
-        const fixedData = data.map(p => {
-            const safeImages = Array.isArray(p.images) ? p.images : [];
-            const newImages = safeImages.map(url => {
-                // Biến hóa phép màu: Đổi tất cả ảnh lúc trước từng bị nhầm tên miền sang tên miền mới s3 lập tức
-                if (typeof url === 'string' && url.includes('minio.ntcomp.site')) {
-                    return url.replace('minio.ntcomp.site', 's3.ntcomp.site');
-                }
-                return url;
-            });
-            return { ...p, images: newImages };
-        });
-        
-        res.json(fixedData);
-    } catch (err) {
-        console.error("Lỗi khi kéo danh sách SP:", err);
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// --- API XỬ LÝ ĐƠN HÀNG (ORDERS) ---
-app.post("/api/orders", async (req, res) => {
-    try {
-        const newOrder = new Order(req.body);
-        await newOrder.save();
-        res.json({ success: true, order: newOrder });
-    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
-
-app.get("/api/orders", async (req, res) => {
-    try { res.json(await Order.find().sort({ createdAt: -1 })); } 
-    catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.put("/api/orders/:id", async (req, res) => {
-    try {
-        const { status } = req.body;
-        const updated = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
-        res.json({ success: true, order: updated });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.delete("/api/orders/:id", async (req, res) => {
-    try {
-        await Order.findByIdAndDelete(req.params.id);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-// --- API XỬ LÝ KHÁCH HÀNG / BẢO HÀNH (CUSTOMERS) ---
-app.post("/api/customers", async (req, res) => {
-    try {
-        const newCus = new Customer(req.body);
-        await newCus.save();
-        res.json({ success: true, customer: newCus });
-    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
-
-app.get("/api/customers", async (req, res) => {
-    try { res.json(await Customer.find().sort({ createdAt: -1 })); } 
-    catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.delete("/api/customers/:id", async (req, res) => {
-    try {
-        await Customer.findByIdAndDelete(req.params.id);
-        res.json({ success: true });
-    } catch (err) { res.status(500).json({ success: false }); }
-});
-
-// --- API THỐNG KÊ (DASHBOARD REAL-TIME) ---
-app.get("/api/stats", async (req, res) => {
-    try {
-        const totalProducts = await Product.countDocuments();
-        const totalCustomers = await Customer.countDocuments();
-        
-        // Tính tổng doanh thu từ những Order có status = 'completed' (Đã chốt)
-        const completedOrders = await Order.find({ status: 'completed' });
-        const totalRevenue = completedOrders.reduce((sum, order) => sum + (order.price || 0), 0);
-        
-        const newOrders = await Order.countDocuments({ status: 'pending' });
-
-        // Lấy 5 đơn hàng rinh nhất
-        const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5);
-
-        res.json({
-            success: true,
-            stats: { totalProducts, totalCustomers, totalRevenue, newOrders },
-            recentOrders
-        });
-    } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
+app.use('/api/orders', orderRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/stats', statsRoutes);
 
 const PORT = 5000;
 app.listen(PORT, "0.0.0.0", () => {

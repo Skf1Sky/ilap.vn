@@ -1,6 +1,6 @@
 // 🛠️ File: src/pages/admin/Login.jsx
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../api'; // Import axios instance đã cấu hình
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -11,11 +11,12 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Gọi API login ở Server
-      const res = await axios.post('https://database.ntcomp.site/login', { username, password });
+      // Gọi API login ở Server (Sử dụng đường dẫn mới có JWT)
+      const res = await api.post('/api/auth/login', { username, password });
       
       if (res.data.success) {
-        // Lưu "thẻ bài" vào máy người dùng
+        // Lưu "thẻ bài" JWT và đánh dấu Admin vào máy người dùng
+        localStorage.setItem('token', res.data.token);
         localStorage.setItem('isAdmin', 'true'); 
         alert('Đăng nhập thành công!');
         navigate('/admin'); // Chuyển hướng vào trang Admin

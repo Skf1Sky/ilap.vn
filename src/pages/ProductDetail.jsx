@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import ProductCard from '../components/ProductCard';
 
 const ProductDetail = ({ products }) => {
@@ -8,7 +8,7 @@ const ProductDetail = ({ products }) => {
   
   const [activeImage, setActiveImage] = useState('');
   const [showOrderModal, setShowOrderModal] = useState(false);
-  const [orderForm, setOrderForm] = useState({ customerName: '', phone: '' });
+  const [orderForm, setOrderForm] = useState({ customerName: '', phone: '', address: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   // Tìm sản phẩm trực tiếp từ state chung
@@ -31,18 +31,22 @@ const ProductDetail = ({ products }) => {
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
     try {
-        await axios.post('https://database.ntcomp.site/api/orders', {
+        await api.post('/api/orders', {
             customerName: orderForm.customerName,
             phone: orderForm.phone,
-            productName: product.name,
-            productId: product._id || product.id,
-            price: product.price
+            address: orderForm.address,
+            items: [{
+                productId: product._id || product.id,
+                name: product.name,
+                price: product.price,
+                quantity: 1
+            }]
         });
         setOrderSuccess(true);
         setTimeout(() => {
             setShowOrderModal(false);
             setOrderSuccess(false);
-            setOrderForm({ customerName: '', phone: '' });
+            setOrderForm({ customerName: '', phone: '', address: '' });
         }, 3000);
     } catch (err) {
         alert("Lỗi kết nối. Vui lòng thử lại sau!");
@@ -114,6 +118,16 @@ const ProductDetail = ({ products }) => {
             {/* Cột Phải */}
             <div className="md:col-span-7">
                <h1 className="text-3xl font-black text-gray-800 mb-2 leading-tight">{product.name}</h1>
+               <div className="flex items-center gap-4 text-sm text-gray-600 mb-4 pb-4 border-b border-gray-100">
+                  <span className="bg-gray-100 px-2 py-1 rounded font-semibold text-gray-700">Đã bán: {product.sold || 0}</span>
+                  {product.quantity > 0 && product.quantity < 5 ? (
+                      <span className="text-red-500 font-bold animate-pulse"><i className="fas fa-exclamation-triangle mr-1"></i> Sắp hết hàng (Chỉ còn {product.quantity})</span>
+                  ) : product.quantity > 0 ? (
+                      <span className="text-emerald-600 font-bold"><i className="fas fa-check-circle mr-1"></i> Còn {product.quantity} sản phẩm</span>
+                  ) : (
+                      <span className="text-gray-400 font-bold line-through"><i className="fas fa-times-circle mr-1"></i> Hết hàng</span>
+                  )}
+               </div>
                <div className="bg-gray-50 rounded-lg p-5 mb-6 border border-gray-100 relative overflow-hidden">
                   <div className="text-3xl font-bold text-red-600 mb-2 flex items-end gap-3">
                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
@@ -133,8 +147,8 @@ const ProductDetail = ({ products }) => {
                </div>
 
                <div className="flex flex-col sm:flex-row gap-4">
-                  <button onClick={() => setShowOrderModal(true)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-4 rounded-lg font-bold uppercase shadow-lg shadow-red-600/30 transition transform hover:-translate-y-1">
-                     <span className="block text-xl"><i className="fas fa-shopping-cart mr-2"></i> Đăng Ký Mua</span>
+                  <button disabled={product.quantity <= 0 && !product.inStock} onClick={() => setShowOrderModal(true)} className={`flex-1 text-white py-4 rounded-lg font-bold uppercase shadow-lg transition transform ${product.quantity > 0 || product.inStock ? 'bg-red-600 hover:bg-red-700 shadow-red-600/30 hover:-translate-y-1' : 'bg-gray-400 cursor-not-allowed opacity-70'}`}>
+                     <span className="block text-xl"><i className="fas fa-shopping-cart mr-2"></i> {product.quantity > 0 || product.inStock ? 'Đăng Ký Mua' : 'Hết Hàng Thời Điểm Này'}</span>
                      <span className="block text-xs font-normal opacity-80 mt-1">Để lại SĐT, iLap sẽ gọi điện chốt giá tốt nhất</span>
                   </button>
                </div>
@@ -237,6 +251,10 @@ const ProductDetail = ({ products }) => {
                               <div>
                                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Số điện thoại*</label>
                                   <input required value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} type="tel" className="w-full border-b-2 border-gray-300 px-2 py-2 focus:border-red-500 outline-none transition bg-transparent font-bold text-lg tracking-widest text-blue-800" placeholder="09xxxxxxxx" />
+                              </div>
+                              <div>
+                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Địa chỉ nhận hàng*</label>
+                                  <input required value={orderForm.address} onChange={e => setOrderForm({...orderForm, address: e.target.value})} type="text" className="w-full border-b-2 border-gray-300 px-2 py-2 focus:border-red-500 outline-none transition bg-transparent" placeholder="Số nhà, Đường, Quận/Huyện, Tỉnh/TP" />
                               </div>
                           </div>
                           <button type="submit" className="w-full bg-red-600 text-white font-bold uppercase text-lg py-3 rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200">

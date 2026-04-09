@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 
 const Customers = ({ products }) => {
   const [customers, setCustomers] = useState([]);
@@ -14,7 +14,7 @@ const Customers = ({ products }) => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get('https://database.ntcomp.site/api/customers');
+      const res = await api.get('/api/customers');
       setCustomers(res.data);
       setLoading(false);
     } catch (err) {
@@ -37,7 +37,7 @@ const Customers = ({ products }) => {
          if(p) productName = p.name;
       }
 
-      await axios.post('https://database.ntcomp.site/api/customers', {
+      await api.post('/api/customers', {
         ...formData, productName
       });
       setShowForm(false);
@@ -52,7 +52,7 @@ const Customers = ({ products }) => {
   const deleteCustomer = async (id) => {
     if(!window.confirm("Bạn muốn xóa hồ sơ khách hàng này?")) return;
     try {
-      await axios.delete(`https://database.ntcomp.site/api/customers/${id}`);
+      await api.delete(`/api/customers/${id}`);
       fetchCustomers();
     } catch (err) { alert("Lỗi khi xóa!"); }
   };

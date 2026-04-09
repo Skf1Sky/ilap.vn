@@ -68,12 +68,24 @@ const ProductCard = ({ product }) => {
             })}
         </div>
         
+        {/* TỒN KHO & ĐÃ BÁN */}
+        <div className="flex justify-between items-center text-xs mt-2 px-1 mb-2">
+            <span className="text-gray-500">Đã bán: <span className="font-bold text-gray-700">{product.sold || 0}</span></span>
+            {product.quantity > 0 && product.quantity < 5 ? (
+                <span className="text-red-500 font-bold animate-pulse">Chỉ còn {product.quantity}</span>
+            ) : product.quantity > 0 ? (
+                 <span className="text-emerald-600 font-bold">Còn hàng</span>
+            ) : (
+                <span className="text-gray-400 font-bold line-through">Hết hàng</span>
+            )}
+        </div>
+        
         {/* GIÁ & NÚT */}
-        <div className="flex justify-between items-center pt-3 mt-2 border-t border-gray-100">
+        <div className="flex justify-between items-center pt-3 mt-auto border-t border-gray-100">
           <span className="text-red-600 font-bold text-lg">
             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
           </span>
-          <Link to={`/product/${product.id}`} className="px-4 py-1.5 bg-red-600 text-white text-[11px] font-bold rounded hover:bg-red-700 shadow-md shadow-red-200 transition">
+          <Link to={`/product/${product._id || product.id}`} className={`px-4 py-1.5 text-white text-[11px] font-bold rounded shadow-md transition ${product.quantity > 0 || product.inStock ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-gray-400 cursor-not-allowed pointer-events-none'}`}>
             MUA NGAY
           </Link>
         </div>

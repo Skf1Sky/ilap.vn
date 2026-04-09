@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
@@ -11,7 +11,7 @@ const Dashboard = () => {
   useEffect(() => {
      const fetchStats = async () => {
          try {
-             const res = await axios.get('https://database.ntcomp.site/api/stats');
+             const res = await api.get('/api/stats');
              setDataStats(res.data);
          } catch(e) {
              console.error("Dashboard error:", e);
@@ -20,20 +20,9 @@ const Dashboard = () => {
      fetchStats();
   }, []);
 
-  // Biểu đồ tĩnh mô phỏng xu hướng
-  const chartData = [
-    { name: 'T2', revenue: 4000 },
-    { name: 'T3', revenue: 6000 },
-    { name: 'T4', revenue: 2000 },
-    { name: 'T5', revenue: 8780 },
-    { name: 'T6', revenue: 3890 },
-    { name: 'T7', revenue: 9390 },
-    { name: 'CN', revenue: 12490 },
-  ];
+  if (!dataStats) return <div className="p-10 font-bold text-gray-500"><i className="fas fa-spinner fa-spin mr-2"></i>Đang đồng bộ dữ liệu...</div>;
 
-  if (!dataStats) return <div className="p-10 font-bold text-gray-500">Đang đồng bộ dữ liệu...</div>;
-
-  const { stats, recentOrders } = dataStats;
+  const { stats, recentOrders, chartData } = dataStats;
 
   const summary = [
     { label: 'Tổng Doanh Thu', value: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(stats.totalRevenue), icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100', trend: 'Thực tế' },
@@ -77,7 +66,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
          <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-6">
-               <h3 className="font-bold text-gray-800 text-lg">Biểu Đồ Tăng Trưởng (Minh Họa)</h3>
+               <h3 className="font-bold text-gray-800 text-lg">Doanh Thu 7 Ngày Qua</h3>
             </div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -109,13 +98,17 @@ const Dashboard = () => {
                        </div>
                        <div>
                           <p className="text-sm font-bold text-gray-800">{order.customerName}</p>
-                          <p className={`text-xs font-bold ${order.status === 'pending' ? 'text-yellow-600' : 'text-emerald-600'}`}>
-                             {order.status === 'pending' ? 'Đang Mới' : 'Đã Xong'}
+                          <p className={`text-xs font-bold ${['pending'].includes(order.status) ? 'text-yellow-600' : 
+                                                              ['cancelled'].includes(order.status) ? 'text-red-500' : 'text-emerald-600'}`}>
+                             {order.status === 'pending' ? 'Chờ xác nhận' : 
+                              order.status === 'shipping' ? 'Đang giao' : 
+                              order.status === 'delivered' ? 'Đã giao' : 
+                              order.status === 'cancelled' ? 'Đã huỷ' : 'Đã xác nhận'}
                           </p>
                        </div>
                     </div>
                     <span className="text-sm font-bold text-indigo-700">
-                        {order.price ? new Intl.NumberFormat('vi-VN').format(order.price) + 'đ' : 'Chưa rõ'}
+                        {order.totalPrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalPrice) : 'Chưa rõ'}
                     </span>
                  </div>
                )) : (

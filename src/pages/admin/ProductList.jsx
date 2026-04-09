@@ -1,9 +1,17 @@
-import React, { useState, useMemo } from 'react';
-
-const ProductList = ({ products, onAdd, onUpdate, onDelete }) => {
+import React, { useState, useMemo, useEffect } from 'react';
+const ProductList = ({ products, onAdd, onUpdate, onDelete, onImportStock, fetchInventoryLogs }) => {
   // 1. STATE
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importingProduct, setImportingProduct] = useState(null);
+  const [importAmount, setImportAmount] = useState('');
+  const [importNote, setImportNote] = useState('');
+
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyProduct, setHistoryProduct] = useState(null);
+  const [historyLogs, setHistoryLogs] = useState([]);
 
   // State Bộ lọc
   const [activeTab, setActiveTab] = useState('all');
@@ -117,6 +125,31 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete }) => {
     setFormData({ ...formData, [e.target.name]: value });
   };
 
+  const handleOpenImport = (product) => {
+      setImportingProduct(product);
+      setImportAmount('');
+      setImportNote('');
+      setShowImportModal(true);
+  };
+
+  const handleSaveImport = async (e) => {
+      e.preventDefault();
+      const res = await onImportStock(importingProduct._id || importingProduct.id, importAmount, importNote);
+      if(res.success) {
+          setShowImportModal(false);
+      } else {
+          alert('Lỗi nhập kho');
+      }
+  };
+
+  const handleOpenHistory = async (product) => {
+      setHistoryProduct(product);
+      setShowHistoryModal(true);
+      setHistoryLogs([]); 
+      const logs = await fetchInventoryLogs(product._id || product.id);
+      setHistoryLogs(logs);
+  };
+
   // Hàm render preview ảnh cực mượt
   const renderPreview = (imgData) => {
     if (!imgData) return null;
@@ -169,7 +202,7 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete }) => {
             <tr>
               <th className="p-4 border-b w-16">Ảnh</th>
               <th className="p-4 border-b">Tên & Giá</th>
-              <th className="p-4 border-b">Khuyến mãi</th>
+              <th className="p-4 border-b">Tồn Kho</th>
               <th className="p-4 border-b text-center">Trạng thái</th>
               <th className="p-4 border-b text-center">Hành động</th>
             </tr>
@@ -186,16 +219,22 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete }) => {
                   <div className="font-bold text-gray-800">{p.name}</div>
                   <div className="text-red-600 font-bold font-mono mt-1">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}</div>
                 </td>
-                <td className="p-4">{p.discount ? (<span className="bg-red-100 text-red-600 px-2 py-1 rounded border border-red-200 text-xs font-bold inline-flex items-center"><i className="fas fa-tags mr-1"></i> {p.discount}</span>) : (<span className="text-gray-400 text-xs italic opacity-50">-- Không --</span>)}</td>
-                <td className="p-4 text-center">
-                  <button onClick={() => handleToggleStatus(p._id || p.id)} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition shadow-sm flex items-center justify-center mx-auto w-28 gap-2 ${p.inStock ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' : 'bg-gray-200 text-gray-600 border-gray-300 hover:bg-gray-300'}`}>
-                    <i className={`fas ${p.inStock ? 'fa-check-circle' : 'fa-times-circle'}`}></i>{p.inStock ? 'Còn Hàng' : 'Hết Hàng'}
-                  </button>
+                <td className="p-4">
+                    <div className={`font-bold ${p.quantity > 0 ? 'text-blue-600' : 'text-red-500'}`}>Còn: {p.quantity || 0}</div>
+                    <div className="text-gray-500 text-xs">Đã bán: <span className="font-bold text-gray-700">{p.sold || 0}</span></div>
                 </td>
                 <td className="p-4 text-center">
-                  <div className="flex justify-center gap-2">
-                    <button onClick={() => handleEdit(p)} className="w-8 h-8 rounded bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"><i className="fas fa-pen"></i></button>
-                    <button onClick={() => handleDelete(p._id || p.id)} className="w-8 h-8 rounded bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition"><i className="fas fa-trash"></i></button>
+                  <div className={`px-2 py-1 rounded-full text-[11px] font-bold inline-block border ${p.inStock ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
+                    {p.inStock ? 'SẴN SÀNG' : 'HẾT HÀNG'}
+                  </div>
+                </td>
+                <td className="p-4 text-center">
+                  <div className="flex justify-center flex-wrap gap-1.5 w-[140px] mx-auto">
+                    <button onClick={() => handleOpenImport(p)} title="Nhập hàng" className="px-2 py-1 rounded bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-600 hover:text-white transition text-xs font-bold leading-none w-[48%] flex items-center justify-center h-7 hidden"><i className="fas fa-box-open mr-1"></i>Nhập</button>
+                    <button onClick={() => handleOpenImport(p)} title="Nhập số lượng lớn" className="w-[48%] h-7 rounded bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-600 hover:text-white transition text-xs font-bold flex items-center justify-center">Nhập</button>
+                    <button onClick={() => handleOpenHistory(p)} title="Lịch sử nhập/xuất" className="w-[48%] h-7 rounded bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition text-xs font-bold flex items-center justify-center">Lịch Sử</button>
+                    <button onClick={() => handleEdit(p)} title="Sửa" className="w-[48%] h-7 rounded bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition flex items-center justify-center"><i className="fas fa-pen text-xs"></i></button>
+                    <button onClick={() => handleDelete(p._id || p.id)} title="Xóa" className="w-[48%] h-7 rounded bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i className="fas fa-trash text-xs"></i></button>
                   </div>
                 </td>
               </tr>
@@ -302,6 +341,79 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete }) => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* --- MODAL NHẬP KHO --- */}
+      {showImportModal && importingProduct && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden transform animate-fade-in-up">
+              <div className="bg-teal-600 text-white px-5 py-3 flex justify-between items-center">
+                 <h3 className="font-bold flex items-center"><i className="fas fa-box-open mr-2"></i> Nhập Thêm Hàng</h3>
+                 <button onClick={() => setShowImportModal(false)}><i className="fas fa-times"></i></button>
+              </div>
+              <form onSubmit={handleSaveImport} className="p-5">
+                 <div className="mb-4 text-sm bg-gray-50 p-2 rounded"><strong>SP:</strong> {importingProduct.name}</div>
+                 <div className="mb-4">
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Số lượng nhập vô (+)</label>
+                    <input type="number" required min="1" value={importAmount} onChange={e => setImportAmount(e.target.value)} className="w-full border-2 border-teal-100 rounded p-2 focus:border-teal-500 outline-none font-bold text-teal-700" placeholder="VD: 5, 10..." />
+                 </div>
+                 <div className="mb-6">
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Ghi chú (Tùy chọn)</label>
+                    <input type="text" value={importNote} onChange={e => setImportNote(e.target.value)} className="w-full border p-2 rounded outline-none focus:border-teal-500 text-sm" placeholder="Nhập từ xưởng A..." />
+                 </div>
+                 <button type="submit" className="w-full bg-teal-600 text-white font-bold py-2.5 rounded hover:bg-teal-700 transition shadow-lg shadow-teal-500/30">Xác Nhận Nhập Kho</button>
+              </form>
+           </div>
+        </div>
+      )}
+
+      {/* --- MODAL LỊCH SỬ KHO --- */}
+      {showHistoryModal && historyProduct && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden transform animate-fade-in-up flex flex-col max-h-[80vh]">
+              <div className="bg-indigo-600 text-white px-5 py-3 flex justify-between items-center shrink-0">
+                 <h3 className="font-bold flex items-center"><i className="fas fa-history mr-2"></i> Lịch Sử Lưu Chuyển Kho</h3>
+                 <button onClick={() => setShowHistoryModal(false)}><i className="fas fa-times"></i></button>
+              </div>
+              <div className="p-4 bg-gray-50 shrink-0 border-b">
+                 <p className="font-bold text-gray-800 text-sm">{historyProduct.name}</p>
+                 <div className="flex gap-4 mt-2">
+                    <span className="text-xs bg-white border px-2 py-1 rounded font-bold text-blue-600">Tồn Dư: {historyProduct.quantity || 0}</span>
+                    <span className="text-xs bg-white border px-2 py-1 rounded font-bold text-gray-600">Tổng Bán: {historyProduct.sold || 0}</span>
+                 </div>
+              </div>
+              <div className="p-0 overflow-y-auto flex-1">
+                 <table className="w-full text-left border-collapse text-sm">
+                    <thead className="bg-white border-b sticky top-0 shadow-sm z-10 text-xs font-bold text-gray-500 uppercase">
+                       <tr>
+                          <th className="p-3">Thời gian</th>
+                          <th className="p-3 text-center">Hành động</th>
+                          <th className="p-3 text-center">Số lượng</th>
+                          <th className="p-3">Lý do / Ghi chú</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                       {historyLogs.length === 0 ? (
+                           <tr><td colSpan="4" className="text-center p-6 text-gray-400 italic">Chưa có bản ghi hoạt động nào</td></tr>
+                       ) : historyLogs.map(log => (
+                           <tr key={log._id} className="hover:bg-gray-50 transition">
+                              <td className="p-3 text-xs text-gray-500">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
+                              <td className="p-3 text-center">
+                                  {log.action === 'import' ? <span className="bg-teal-100 text-teal-700 font-bold px-2 py-0.5 rounded text-[11px]"><i className="fas fa-arrow-down mr-1"></i>Nhập</span> :
+                                   log.action === 'export' ? <span className="bg-orange-100 text-orange-600 font-bold px-2 py-0.5 rounded text-[11px]"><i className="fas fa-arrow-up mr-1 text-orange-400"></i>Xuất Xong</span> :
+                                   <span className="bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded text-[11px]"><i className="fas fa-undo mr-1"></i>Hoàn Trả</span>}
+                              </td>
+                              <td className="p-3 text-center font-bold font-mono">
+                                  {log.action === 'import' || log.action === 'restock_cancel' ? <span className="text-teal-600">+{log.amount}</span> : <span className="text-orange-500">-{log.amount}</span>}
+                              </td>
+                              <td className="p-3 text-xs text-gray-600 truncate max-w-[150px]" title={log.note}>{log.note || '---'}</td>
+                           </tr>
+                       ))}
+                    </tbody>
+                 </table>
+              </div>
+           </div>
         </div>
       )}
     </div>
