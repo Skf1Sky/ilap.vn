@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useProducts } from './hooks/useProducts';
 // Import các Layout & Pages
 import Header from './components/Header';
