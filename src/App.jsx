@@ -14,6 +14,7 @@ import ProductList from './pages/admin/ProductList';
 import Orders from './pages/admin/Orders';
 import Customers from './pages/admin/Customers';
 import Login from './pages/admin/Login'; // Nhớ tạo file Login.jsx trước nhé
+import StickyCTA from './components/StickyCTA';
 
 // Bỏ biến cục bộ API đi vì đã cấu hình trong Service layer
 // Component cuộn lên đầu trang khi chuyển trang
@@ -26,10 +27,11 @@ const ScrollToTop = () => {
 // Layout cho khách (Có Header + Footer)
 const PublicLayout = ({ children }) => {
   return (
-    <div className="font-sans text-gray-700 bg-gray-50">
+    <div className="font-sans text-gray-700 bg-gray-50 pb-20 md:pb-0">
       <Header />
       {children}
       <Footer />
+      <StickyCTA />
     </div>
   );
 };

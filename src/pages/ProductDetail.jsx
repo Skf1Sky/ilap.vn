@@ -164,13 +164,21 @@ const ProductDetail = ({ products }) => {
                     <div className="overflow-hidden rounded-lg border border-gray-200">
                         <table className="w-full text-sm text-left">
                             <tbody className="divide-y divide-gray-200">
-                                {/* Map specs từ mảng string trong MongoDB */}
-                                {product.specs && product.specs.map((spec, index) => (
-                                    <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
-                                        <td className="p-4 font-bold text-gray-600 w-1/3">Thông số {index + 1}</td>
-                                        <td className="p-4 text-gray-800">{spec}</td>
-                                    </tr>
-                                ))}
+                                {product.specs && product.specs.map((spec, index) => {
+                                    const labels = product.category === 'laptop' 
+                                        ? ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Màn hình', 'Card đồ họa (VGA)', 'Dung lượng PIN']
+                                        : ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Mainboard', 'Card đồ họa (VGA)', 'Nguồn & Vỏ Case'];
+                                    
+                                    const specLabel = (typeof spec === 'object' && spec.name) ? spec.name : (labels[index] || `Thông số ${index + 1}`);
+                                    const specValue = (typeof spec === 'object') ? spec.value : spec;
+
+                                    return (
+                                        <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                                            <td className="p-4 font-bold text-gray-600 w-1/3 text-xs uppercase tracking-wider">{specLabel}</td>
+                                            <td className="p-4 text-gray-800 font-medium">{specValue}</td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

@@ -35,13 +35,20 @@ export const useProducts = () => {
     // Helper tạo FormData (chỉ xài nội bộ hook hoặc service)
     const buildFormData = (productData) => {
         const payload = new FormData();
-        Object.keys(productData).forEach(key => {
+        
+        // LOGIC QUAN TRỌNG: Nếu có mảng 'images' (cũ) mà không có 'oldImages' thì gán qua để sync với Backend
+        const finalData = { ...productData };
+        if (finalData.images && !finalData.oldImages) {
+            finalData.oldImages = finalData.images;
+        }
+
+        Object.keys(finalData).forEach(key => {
             if (key === 'oldImages' || key === 'specs') {
-                payload.append(key, JSON.stringify(productData[key] || []));
-            } else if (key === 'newFiles') {
-                productData.newFiles.forEach(file => payload.append('images', file));
+                payload.append(key, JSON.stringify(finalData[key] || []));
+            } else if (key === 'newFiles' && Array.isArray(finalData.newFiles)) {
+                finalData.newFiles.forEach(file => payload.append('images', file));
             } else {
-                payload.append(key, productData[key] !== null && productData[key] !== undefined ? productData[key] : '');
+                payload.append(key, finalData[key] !== null && finalData[key] !== undefined ? finalData[key] : '');
             }
         });
         return payload;

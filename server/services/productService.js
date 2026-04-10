@@ -18,7 +18,7 @@ class ProductService {
     }
 
     async createProduct(payload, files) {
-        const { name, price, category, specs, discount, video, inStock } = payload;
+        const { name, price, category, specs, discount, video, inStock, brand, condition, rating, quantity } = payload;
         const imageUrls = [];
 
         if (files && files.length > 0) {
@@ -31,13 +31,22 @@ class ProductService {
         }
 
         let parsedSpecs = [];
-        try { parsedSpecs = typeof specs === 'string' ? JSON.parse(specs) : specs; } catch(e) { parsedSpecs = [specs]; }
+        try { parsedSpecs = typeof specs === 'string' ? JSON.parse(specs) : specs; } catch(e) { parsedSpecs = []; }
 
         const newProduct = new Product({
-            name, price: Number(price), category, images: imageUrls,
-            specs: parsedSpecs, discount, video, 
-            inStock: String(inStock) === 'true',
-            quantity: 0, sold: 0
+            name, 
+            price: Number(price), 
+            category, 
+            images: imageUrls,
+            specs: parsedSpecs, 
+            discount, 
+            video, 
+            brand,
+            condition,
+            rating: Number(rating) || 5,
+            inStock: String(inStock) === 'true' || inStock === true,
+            quantity: Number(quantity) || 0, 
+            sold: 0
         });
 
         await newProduct.save();
@@ -45,9 +54,15 @@ class ProductService {
     }
 
     async updateProduct(id, payload, files) {
-        const { name, price, category, specs, discount, video, inStock } = payload;
+        // Cập nhật tất cả các field từ payload
+        const { name, price, category, specs, discount, video, inStock, brand, condition, rating, quantity } = payload;
+        
         let oldImages = [];
-        try { oldImages = typeof payload.oldImages === 'string' ? JSON.parse(payload.oldImages) : (payload.oldImages || []); } catch(e) { oldImages = []; }
+        try { 
+            oldImages = typeof payload.oldImages === 'string' ? JSON.parse(payload.oldImages) : (payload.oldImages || []); 
+        } catch(e) { 
+            oldImages = []; 
+        }
         
         let imageUrls = [...oldImages];
 
@@ -61,12 +76,35 @@ class ProductService {
         }
 
         let parsedSpecs = [];
-        try { parsedSpecs = typeof specs === 'string' ? JSON.parse(specs) : specs; } catch(e) { parsedSpecs = [specs]; }
+        try { 
+            parsedSpecs = typeof specs === 'string' ? JSON.parse(specs) : specs; 
+        } catch(e) { 
+            parsedSpecs = []; 
+        }
 
-        const updatedProduct = await Product.findByIdAndUpdate(id, {
-            name, price: Number(price), category, images: imageUrls,
-            specs: parsedSpecs, discount, video, inStock: String(inStock) === 'true'
-        }, { new: true });
+        const updateData = {
+            name, 
+            price: price !== undefined ? Number(price) : undefined, 
+            category, 
+            images: imageUrls,
+            specs: parsedSpecs, 
+            discount, 
+            video, 
+            brand,
+            condition,
+            rating: rating !== undefined ? Number(rating) : undefined,
+            inStock: inStock !== undefined ? (String(inStock) === 'true' || inStock === true) : undefined,
+            quantity: quantity !== undefined ? Number(quantity) : undefined
+        };
+
+        // Loại bỏ các trường undefined để tránh ghi đè dữ liệu cũ bằng null
+        Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
+        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+        
+        if (!updatedProduct) {
+            throw new Error("Sản phẩm không tồn tại hoặc ID không hợp lệ");
+        }
 
         return updatedProduct;
     }

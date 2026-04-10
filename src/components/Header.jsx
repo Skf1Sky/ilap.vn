@@ -5,7 +5,6 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  // Kiểm tra: Chỉ áp dụng Header trong suốt khi ở Trang Chủ ('/')
   const isHomePage = location.pathname === '/';
 
   useEffect(() => {
@@ -16,8 +15,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // --- LOGIC MÀU SẮC ---
-  // Nếu (đã cuộn) HOẶC (không phải trang chủ) -> Nền trắng, chữ đen
   const isStickyOrNotHome = isScrolled || !isHomePage;
 
   const headerClass = isStickyOrNotHome 
@@ -25,8 +22,8 @@ const Header = () => {
       : 'bg-transparent text-white';
 
   const topbarClass = isStickyOrNotHome
-      ? 'bg-dark text-gray-400 border-gray-800' // Topbar luôn tối màu khi nền trắng để dễ nhìn
-      : 'border-white/10 text-gray-300'; // Topbar mờ khi ở nền trong suốt
+      ? 'bg-dark text-gray-400 border-gray-800' 
+      : 'border-white/10 text-gray-300'; 
 
   const borderClass = isStickyOrNotHome ? 'border-gray-700' : 'border-white/20';
   const logoTextClass = isStickyOrNotHome ? 'text-black' : 'text-white';
@@ -39,10 +36,9 @@ const Header = () => {
       <div className={`h-[46px] text-[13px] border-b transition-colors duration-300 ${topbarClass}`}>
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
             
-            {/* CỤM BÊN TRÁI: FOLLOW US + ICONS */}
+            {/* CỤM BÊN TRÁI: THEO DÕI TẠI + ICONS */}
             <div className="flex items-center h-full">
-                <span className="hidden sm:block uppercase font-bold tracking-wide mr-4 text-[11px]">Follow us</span>
-                {/* 👇 ĐÂY LÀ PHẦN ICON BẠN BỊ MẤT 👇 */}
+                <span className="hidden sm:block uppercase font-black tracking-wide mr-4 text-[11px]">Theo dõi tại</span>
                 <div className={`flex items-center border-l ${borderClass} pl-4 space-x-4`}>
                     <a href="#" className="hover:text-primary transition"><i className="fab fa-facebook-f"></i></a>
                     <a href="#" className="hover:text-primary transition"><i className="fab fa-youtube"></i></a>
@@ -76,14 +72,14 @@ const Header = () => {
             <nav className="hidden lg:block">
                 <ul className="flex gap-8 xl:gap-10">
                     {[
-                      { name: 'Home', path: '/' },
+                      { name: 'Trang chủ', path: '/' },
                       { name: 'Laptop', path: '/laptops' },
                       { name: 'PC - Máy Bàn', path: '#' },
                       { name: 'Linh Kiện', path: '#' },
                       { name: 'Liên Hệ', path: '/contact' }
                     ].map((item) => (
                         <li key={item.name}>
-                            <Link to={item.path} className={`relative py-8 font-bold uppercase text-[13px] hover:text-primary transition group ${navTextClass}`}>
+                            <Link to={item.path} className={`relative py-8 font-black uppercase text-[13px] hover:text-primary transition group ${navTextClass}`}>
                                 {item.name}
                                 <span className="absolute bottom-0 left-1/2 w-0 h-[3px] bg-primary transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
                             </Link>
@@ -94,16 +90,16 @@ const Header = () => {
 
             {/* ACTION ICONS */}
             <div className="flex items-center gap-4">
-                <button className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition ${navTextClass} hover:bg-blue-50 hover:text-primary`}>
+                <button className={`w-11 h-11 rounded-full flex items-center justify-center text-lg transition-all ${navTextClass} hover:bg-primary/10 hover:text-primary active:scale-90`}>
                     <i className="fas fa-search"></i>
                 </button>
-                <div className={`relative w-10 h-10 rounded-full flex items-center justify-center text-lg transition cursor-pointer ${navTextClass} hover:bg-blue-50 hover:text-primary`}>
+                <div className={`relative w-11 h-11 rounded-full flex items-center justify-center text-lg transition-all cursor-pointer ${navTextClass} hover:bg-primary/10 hover:text-primary active:scale-90`}>
                     <i className="far fa-heart"></i>
-                    <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white">0</span>
+                    <span className="absolute top-1 right-1 bg-primary text-white text-[10px] font-black w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-white">0</span>
                 </div>
-                <div className={`relative w-10 h-10 rounded-full flex items-center justify-center text-lg transition cursor-pointer ${navTextClass} hover:bg-blue-50 hover:text-primary`}>
+                <div className={`relative w-11 h-11 rounded-full flex items-center justify-center text-lg transition-all cursor-pointer ${navTextClass} hover:bg-primary/10 hover:text-primary active:scale-90`}>
                     <i className="fas fa-shopping-basket"></i>
-                    <span className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white">2</span>
+                    <span className="absolute top-1 right-1 bg-primary text-white text-[10px] font-black w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-white">2</span>
                 </div>
             </div>
         </div>

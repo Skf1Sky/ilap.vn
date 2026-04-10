@@ -12,32 +12,55 @@ const ProductCard = ({ product }) => {
   ];
 
   // Logic điền đầy 6 phần tử
-  const specs = [...product.specs];
+  const specs = [...(product.specs || [])];
   while (specs.length < 6) {
     specs.push(""); 
   }
+  
+  const discountPercentage = product.originalPrice && product.originalPrice > product.price 
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+    : 0;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-xl hover:border-primary transition duration-300 group h-full flex flex-col">
+    <div className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-2xl hover:border-primary/20 transition-all duration-500 group h-full flex flex-col scale-[0.98] hover:scale-100">
       
       {/* ẢNH SẢN PHẨM */}
       <div className="relative h-[220px] bg-gray-100 overflow-hidden">
-        {product.discount && (
-          <span className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold uppercase px-2 py-1 rounded z-10 shadow-sm">
+        {product.condition && (
+          <span className={`absolute top-3 left-3 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full z-10 shadow-sm ${product.condition.includes('99%') ? 'bg-red-500' : 'bg-primary'}`}>
+            {product.condition}
+          </span>
+        )}
+        {discountPercentage > 0 && (
+          <span className="absolute top-3 right-3 bg-red-600 text-white text-[11px] font-bold px-2 py-1 rounded-sm z-10 shadow-lg animate-pulse">
+            -{discountPercentage}%
+          </span>
+        )}
+        {product.discount && !discountPercentage && (
+          <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold uppercase px-2 py-1 rounded z-10 shadow-sm">
             {product.discount}
           </span>
         )}
         <Link to={`/product/${product.id}`}>
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover transition duration-500 group-hover:scale-110" />
+          <img src={product.image} alt={product.name} className="w-full h-full object-cover transition duration-500 group-hover:scale-105" />
         </Link>
       </div>
 
       {/* THÔNG TIN */}
       <div className="p-4 flex-1 flex flex-col">
-        <h5 className="font-extrabold text-[17px] mb-2 text-gray-900 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+        <h5 className="font-bold text-[16px] mb-1.5 text-gray-900 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
             <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h5>
-        
+
+        <div className="flex items-center gap-2 mb-2">
+            <div className="flex text-yellow-400 text-[10px]">
+                {[...Array(5)].map((_, i) => (
+                    <i key={i} className={`${i < (product.rating || 5) ? 'fas' : 'far'} fa-star`}></i>
+                ))}
+            </div>
+            <span className="text-[10px] text-gray-400">({product.reviewsCount || 0})</span>
+        </div>
+
         <p className="text-[11px] text-gray-500 mb-3 font-semibold uppercase tracking-wide truncate">{product.subtitle}</p>
         
         {/* 👇 GRID 3 CỘT: Bỏ viền ngoài, Bỏ màu nền, Chỉ giữ gạch trong */}
@@ -61,33 +84,30 @@ const ProductCard = ({ product }) => {
                        
                        {/* Text */}
                        <span className={`text-[12px] font-bold text-center leading-tight line-clamp-2 ${spec ? 'text-gray-700' : 'text-transparent select-none'}`}>
-                          {spec || "-"}
+                          {(typeof spec === 'object' ? spec.value : spec) || "-"}
                        </span>
                     </div>
                 );
             })}
         </div>
         
-        {/* TỒN KHO & ĐÃ BÁN */}
-        <div className="flex justify-between items-center text-xs mt-2 px-1 mb-2">
-            <span className="text-gray-500">Đã bán: <span className="font-bold text-gray-700">{product.sold || 0}</span></span>
-            {product.quantity > 0 && product.quantity < 5 ? (
-                <span className="text-red-500 font-bold animate-pulse">Chỉ còn {product.quantity}</span>
-            ) : product.quantity > 0 ? (
-                 <span className="text-emerald-600 font-bold">Còn hàng</span>
-            ) : (
-                <span className="text-gray-400 font-bold line-through">Hết hàng</span>
-            )}
-        </div>
+        {/* REMOVED TỒN KHO & ĐÃ BÁN */}
         
-        {/* GIÁ & NÚT */}
+        {/* GIÁ & RATING */}
         <div className="flex justify-between items-center pt-3 mt-auto border-t border-gray-100">
-          <span className="text-red-600 font-bold text-lg">
-            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
-          </span>
-          <Link to={`/product/${product._id || product.id}`} className={`px-4 py-1.5 text-white text-[11px] font-bold rounded shadow-md transition ${product.quantity > 0 || product.inStock ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-gray-400 cursor-not-allowed pointer-events-none'}`}>
-            MUA NGAY
-          </Link>
+          <div className="flex flex-col">
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="text-gray-400 text-[11px] line-through font-medium">
+                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
+              </span>
+            )}
+            <span className="text-red-600 font-bold text-xl leading-tight">
+              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
+            </span>
+          </div>
+          <div className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+            SẴN HÀNG
+          </div>
         </div>
       </div>
     </div>
