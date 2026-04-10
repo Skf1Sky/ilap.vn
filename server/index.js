@@ -32,7 +32,7 @@ mongoose.connect(MONGO_URL)
 initMinioBucket();
 
 // 4. Routes chính
-app.get("/", (req, res) => res.send("🚀 API is running perfectly!"));
+//app.get("/", (req, res) => res.send("🚀 API is running perfectly!"));
 
 // Lưu ý /api/auth chứa login và seed-admin
 app.use('/api/auth', authRoutes);
@@ -45,6 +45,25 @@ app.use('/products', productRoutes); // Alias cho frontend hoặc code cũ
 app.use('/api/orders', orderRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/stats', statsRoutes);
+
+
+app.use('/api/stats', statsRoutes);
+
+//  Them doan nay
+const path = require("path");
+
+// Serve file tĩnh
+app.use(express.static(path.join(__dirname, "../dist")));
+
+// Fallback cho React (KHÔNG đụng API)
+app.use((req, res, next) => {
+  if (!req.path.startsWith("/api") && req.method === "GET") {
+    return res.sendFile(path.join(__dirname, "../dist/index.html"));
+  }
+  next();
+});
+
+
 
 const PORT = 5000;
 app.listen(PORT, "0.0.0.0", () => {
