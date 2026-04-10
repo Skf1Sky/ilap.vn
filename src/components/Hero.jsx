@@ -15,6 +15,9 @@ const Hero = () => {
                 <span className="text-sm uppercase tracking-widest font-black text-primary bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm inline-block mt-4">
                   Bảo hành dài hạn - Trả góp 0%
                 </span>
+                <span className="block mt-2 text-[10px] uppercase tracking-widest opacity-30">
+                  Deploy v1.1 - GitAction Test Active
+                </span>
             </p>
 
             {/* Search Box - Soft \u0026 Modern Glass */}
