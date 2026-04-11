@@ -7,4 +7,7 @@ router.post('/', verifyToken, checkRole(['admin']), customerController.createCus
 router.get('/', verifyToken, checkRole(['admin']), customerController.getCustomers);
 router.delete('/:id', verifyToken, checkRole(['admin']), customerController.deleteCustomer);
 
+// Public route for warranty check
+router.get('/check-warranty/:phone', customerController.checkWarranty);
+
 module.exports = router;

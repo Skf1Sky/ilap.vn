@@ -20,8 +20,20 @@ const deleteCustomer = async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 };
 
+const checkWarranty = async (req, res) => {
+    try {
+        const { phone } = req.params;
+        if (!phone) return res.status(400).json({ success: false, message: "Thiếu số điện thoại" });
+        const records = await Customer.find({ phone }).sort({ purchaseDate: -1 });
+        res.json({ success: true, data: records });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 module.exports = {
   createCustomer,
   getCustomers,
-  deleteCustomer
+  deleteCustomer,
+  checkWarranty
 };

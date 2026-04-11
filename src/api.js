@@ -1,8 +1,13 @@
 import axios from 'axios';
 
 // Tạo một instance của axios
+// Tự động chuyển đổi API based on environment
+const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : 'https://database.ntcomp.site';
+
 const api = axios.create({
-  baseURL: 'https://database.ntcomp.site', // Sử dụng domain api hiện tại của bạn
+  baseURL: baseURL,
 });
 
 // Thêm token vào mỗi request nếu có

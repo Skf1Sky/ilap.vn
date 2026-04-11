@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const InventoryLog = require('../models/InventoryLog');
+const Customer = require('../models/Customer');
 
 const createOrder = async (req, res) => {
     try {
@@ -112,6 +113,22 @@ const updateOrder = async (req, res) => {
                          note: `Khôi phục đơn hàng`
                      }).save();
                  }
+             }
+        }
+
+        // Logic check: Nếu xác nhận đơn hàng -> tự động tạo hồ sơ khách hàng/bảo hành
+        if (status === 'confirmed' && currentOrder.status !== 'confirmed') {
+             for (let item of currentOrder.items) {
+                 // Tạo hồ sơ cho từng sản phẩm
+                 await new Customer({
+                    name: currentOrder.customerName,
+                    phone: currentOrder.phone,
+                    productName: item.name,
+                    productId: item.productId,
+                    purchaseDate: new Date(),
+                    warrantyPolicy: '12 Tháng', // Mặc định 12 tháng, admin có thể sửa lại sau
+                    note: `Tự động tạo từ đơn hàng Online: ${currentOrder._id}`
+                 }).save();
              }
         }
 

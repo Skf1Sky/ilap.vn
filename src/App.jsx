@@ -14,6 +14,7 @@ import ProductList from './pages/admin/ProductList';
 import Orders from './pages/admin/Orders';
 import Customers from './pages/admin/Customers';
 import Login from './pages/admin/Login'; // Nhớ tạo file Login.jsx trước nhé
+import Warranty from './pages/Warranty';
 import StickyCTA from './components/StickyCTA';
 
 // Bỏ biến cục bộ API đi vì đã cấu hình trong Service layer
@@ -81,6 +82,12 @@ function App() {
         <Route path="/contact" element={
           <PublicLayout>
             <Contact />
+          </PublicLayout>
+        } />
+
+        <Route path="/warranty" element={
+          <PublicLayout>
+            <Warranty />
           </PublicLayout>
         } />
 

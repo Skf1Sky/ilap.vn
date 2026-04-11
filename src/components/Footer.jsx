@@ -38,6 +38,11 @@ const Footer = () => {
                                         <i className="fas fa-angle-right text-xs mr-2"></i> Linh Kiện Máy Tính
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="/warranty" className="block py-1 hover:text-primary hover:translate-x-1 transition-all duration-300">
+                                        <i className="fas fa-angle-right text-xs mr-2"></i> Tra cứu bảo hành
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 

@@ -76,6 +76,7 @@ const Header = () => {
                       { name: 'Laptop', path: '/laptops' },
                       { name: 'PC - Máy Bàn', path: '#' },
                       { name: 'Linh Kiện', path: '#' },
+                      { name: 'Bảo hành', path: '/warranty' },
                       { name: 'Liên Hệ', path: '/contact' }
                     ].map((item) => (
                         <li key={item.name}>
