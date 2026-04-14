@@ -74,8 +74,8 @@ const Header = () => {
                     {[
                       { name: 'Trang chủ', path: '/' },
                       { name: 'Laptop', path: '/laptops' },
-                      { name: 'PC - Máy Bàn', path: '#' },
-                      { name: 'Linh Kiện', path: '#' },
+                      { name: 'PC - Máy Bàn', path: '/pcs' },
+                      { name: 'Linh Kiện', path: '/linhkien' },
                       { name: 'Bảo hành', path: '/warranty' },
                       { name: 'Liên Hệ', path: '/contact' }
                     ].map((item) => (

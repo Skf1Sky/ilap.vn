@@ -18,7 +18,7 @@ class ProductService {
     }
 
     async createProduct(payload, files) {
-        const { name, price, category, specs, discount, video, inStock, brand, condition, rating, quantity } = payload;
+        const { name, price, category, specs, discount, video, inStock, brand, platform, condition, rating, quantity } = payload;
         const imageUrls = [];
 
         if (files && files.length > 0) {
@@ -42,6 +42,7 @@ class ProductService {
             discount, 
             video, 
             brand,
+            platform,
             condition,
             rating: Number(rating) || 5,
             inStock: String(inStock) === 'true' || inStock === true,
@@ -55,7 +56,7 @@ class ProductService {
 
     async updateProduct(id, payload, files) {
         // Cập nhật tất cả các field từ payload
-        const { name, price, category, specs, discount, video, inStock, brand, condition, rating, quantity } = payload;
+        const { name, price, category, specs, discount, video, inStock, brand, platform, condition, rating, quantity } = payload;
         
         let oldImages = [];
         try { 
@@ -91,6 +92,7 @@ class ProductService {
             discount, 
             video, 
             brand,
+            platform,
             condition,
             rating: rating !== undefined ? Number(rating) : undefined,
             inStock: inStock !== undefined ? (String(inStock) === 'true' || inStock === true) : undefined,

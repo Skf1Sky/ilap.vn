@@ -20,7 +20,7 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete, onImportStock, fetch
   const [formData, setFormData] = useState({
     id: '', name: '', price: '', category: 'laptop', brand: '', quantity: 0, 
     discount: '', video: '', inStock: true,
-    condition: '', originalPrice: '', rating: 5,
+    condition: '', originalPrice: '', rating: 5, platform: 'all',
     img1: null, img2: null, img3: null, img4: null,
     cpu: '', ram: '', disk: '', vga: '', spec4: '', spec6: ''
   });
@@ -65,7 +65,7 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete, onImportStock, fetch
     setFormData({
       id: '', name: '', price: '', category: 'laptop', brand: '', quantity: 0,
       discount: '', video: '', inStock: true,
-      condition: '', originalPrice: '', rating: 5,
+      condition: 'New', originalPrice: '', rating: 5, platform: 'all',
       img1: null, img2: null, img3: null, img4: null,
       cpu: '', ram: '', disk: '', vga: '', spec4: '', spec6: ''
     });
@@ -90,6 +90,7 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete, onImportStock, fetch
       condition: product.condition || '',
       originalPrice: product.originalPrice || '',
       rating: product.rating || 5,
+      platform: product.platform || 'all',
       inStock: product.inStock !== undefined ? product.inStock : true,
       cpu: (specs[0] && typeof specs[0] === 'object') ? specs[0].value : (specs[0] || ''), 
       ram: (specs[1] && typeof specs[1] === 'object') ? specs[1].value : (specs[1] || ''), 
@@ -123,7 +124,16 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete, onImportStock, fetch
     } else if (formData.category === 'pc') {
       labels = ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Mainboard', 'Card đồ họa (VGA)', 'Nguồn & Vỏ Case'];
     } else {
-      labels = ['Mainboard', 'Vi xử lý (CPU)', 'RAM', 'Card đồ họa (VGA)', 'Nguồn & Vỏ Case', 'Tản nhiệt/Khác'];
+        // LINH KIỆN
+        if (formData.brand === 'Mainboard') {
+            labels = ['Socket (Hỗ trợ)', 'Chipset', 'Hỗ trợ CPU', 'Khe RAM', 'Form Factor', 'Bảo hành'];
+        } else if (formData.brand === 'Chip') {
+            labels = ['Socket', 'Số nhân/luồng', 'Xung nhịp', 'Bộ nhớ đệm (Cache)', 'TDP (Công suất)', 'Đồ họa tích hợp'];
+        } else if (formData.brand === 'RAM') {
+            labels = ['Dung lượng', 'Chuẩn RAM (DDR)', 'Tốc độ (Bus)', 'Điện áp', 'Tản nhiệt', 'Bảo hành'];
+        } else {
+            labels = ['Thông số 1', 'Thông số 2', 'Thông số 3', 'Thông số 4', 'Thông số 5', 'Thông số 6'];
+        }
     }
 
     const compiledSpecs = [
@@ -359,11 +369,27 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete, onImportStock, fetch
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h4 className="font-black text-primary uppercase text-[10px] tracking-widest flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary"></div> 2. TRẠNG THÁI & ƯU ĐÃI</h4>
+                                    <h4 className="font-black text-primary uppercase text-[10px] tracking-widest flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary"></div> 2. TRẠNG THÁI & PHÂN LOẠI</h4>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div><label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 ml-1">Tình trạng</label><input name="condition" value={formData.condition} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-3 rounded-xl focus:border-primary outline-none transition-all font-bold shadow-sm" placeholder="Mới 99%..." /></div>
+                                        <div>
+                                            <label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 ml-1">Tình trạng</label>
+                                            <select name="condition" value={formData.condition} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-3 rounded-xl focus:border-primary outline-none transition-all font-bold shadow-sm">
+                                                <option value="New">Mới (New)</option>
+                                                <option value="2nd">Hàng Cũ (2nd)</option>
+                                            </select>
+                                        </div>
                                         <div><label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 ml-1">Kho hàng</label><select name="inStock" value={formData.inStock} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-3 rounded-xl focus:border-primary outline-none transition-all font-bold shadow-sm"><option value={true}>Sẵn hàng</option><option value={false}>Hết hàng</option></select></div>
                                     </div>
+                                    {formData.category === 'linhkien' && (
+                                        <div>
+                                            <label className="text-[11px] font-black text-primary uppercase tracking-wider block mb-1.5 ml-1">Nền tảng sử dụng</label>
+                                            <select name="platform" value={formData.platform} onChange={handleChange} className="w-full bg-blue-50/50 border-2 border-primary/20 p-3 rounded-xl focus:border-primary outline-none transition-all font-black text-primary shadow-sm">
+                                                <option value="all">Dùng chung (Cả PC & Laptop)</option>
+                                                <option value="pc">Dành cho Máy tính bàn (PC)</option>
+                                                <option value="laptop">Dành cho Laptop</option>
+                                            </select>
+                                        </div>
+                                    )}
                                     <div><label className="text-[11px] font-black text-red-500 uppercase tracking-wider block mb-1.5 ml-1">Quà tặng / Khuyến mãi</label><input name="discount" value={formData.discount} onChange={handleChange} className="w-full bg-red-50/30 border-2 border-red-100 p-3 rounded-xl focus:border-red-500 outline-none transition-all font-bold text-red-600 shadow-sm" /></div>
                                     <div><label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 ml-1">Đánh giá (1-5 sao)</label><input type="number" min="1" max="5" name="rating" value={formData.rating} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-3 rounded-xl focus:border-primary outline-none transition-all font-black text-yellow-600 shadow-sm" /></div>
                                 </div>
@@ -398,35 +424,52 @@ const ProductList = ({ products, onAdd, onUpdate, onDelete, onImportStock, fetch
                                     <div className="mt-4"><label className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-1.5 ml-1">Link Video Review</label><input name="video" value={formData.video} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-3 rounded-xl focus:border-primary outline-none transition-all font-medium text-blue-600 underline shadow-sm" placeholder="https://youtube.com/..." /></div>
                                 </div>
 
-                                <div>
-                                    <h4 className="font-black text-primary uppercase text-[10px] tracking-widest flex items-center gap-2 mb-4"><div className="w-2 h-2 rounded-full bg-primary"></div> 4. CẤU HÌNH KỸ THUẬT</h4>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{formData.category === 'linhkien' ? 'Mainboard' : 'CPU'}</label>
-                                            <input required name="cpu" value={formData.cpu} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{formData.category === 'linhkien' ? 'CPU' : 'RAM'}</label>
-                                            <input required name="ram" value={formData.ram} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{formData.category === 'linhkien' ? 'RAM' : 'Ổ cứng'}</label>
-                                            <input required name="disk" value={formData.disk} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{formData.category === 'laptop' ? 'Màn hình' : formData.category === 'pc' ? 'Mainboard' : 'VGA'}</label>
-                                            <input required name="spec4" value={formData.spec4} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{formData.category === 'linhkien' ? 'Nguồn & Case' : 'VGA (Card đồ họa)'}</label>
-                                            <input required name="vga" value={formData.vga} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{formData.category === 'laptop' ? 'Pin / PIN' : 'Tản nhiệt / Case'}</label>
-                                            <input required name="spec6" value={formData.spec6} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
+                                {formData.category !== 'linhkien' && (
+                                    <div>
+                                        <h4 className="font-black text-primary uppercase text-[10px] tracking-widest flex items-center gap-2 mb-4"><div className="w-2 h-2 rounded-full bg-primary"></div> 4. CẤU HÌNH KỸ THUẬT</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {(() => {
+                                                let currentLabels = [];
+                                                if (formData.category === 'laptop') {
+                                                    currentLabels = ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Màn hình', 'Card đồ họa (VGA)', 'Dung lượng PIN'];
+                                                } else if (formData.category === 'pc') {
+                                                    currentLabels = ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Mainboard', 'Card đồ họa (VGA)', 'Nguồn & Vỏ Case'];
+                                                } else {
+                                                    // FALLBACK (Should not happen if category is linhkien)
+                                                    currentLabels = ['Thông số 1', 'Thông số 2', 'Thông số 3', 'Thông số 4', 'Thông số 5', 'Thông số 6'];
+                                                }
+                                                return (
+                                                    <>
+                                                        <div>
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{currentLabels[0]}</label>
+                                                            <input required name="cpu" value={formData.cpu} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{currentLabels[1]}</label>
+                                                            <input required name="ram" value={formData.ram} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{currentLabels[2]}</label>
+                                                            <input required name="disk" value={formData.disk} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{currentLabels[3]}</label>
+                                                            <input required name="spec4" value={formData.spec4} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{currentLabels[4]}</label>
+                                                            <input required name="vga" value={formData.vga} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-[10px] font-black text-gray-400 uppercase block mb-1">{currentLabels[5]}</label>
+                                                            <input required name="spec6" value={formData.spec6} onChange={handleChange} className="w-full bg-white border-2 border-gray-100 p-2.5 rounded-xl focus:border-primary outline-none text-sm font-bold shadow-sm" />
+                                                        </div>
+                                                    </>
+                                                )
+                                            })()}
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>

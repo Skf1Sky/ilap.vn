@@ -7,6 +7,8 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import AllLaptops from './pages/AllLaptops';
+import AllPCs from './pages/AllPCs';
+import AllComponents from './pages/AllComponents';
 import Contact from './pages/Contact';
 import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
@@ -70,6 +72,18 @@ function App() {
         <Route path="/laptops" element={
           <PublicLayout>
             <AllLaptops products={products} />
+          </PublicLayout>
+        } />
+
+        <Route path="/pcs" element={
+          <PublicLayout>
+            <AllPCs products={products} />
+          </PublicLayout>
+        } />
+
+        <Route path="/linhkien" element={
+          <PublicLayout>
+            <AllComponents products={products} />
           </PublicLayout>
         } />
 

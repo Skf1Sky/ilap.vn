@@ -21,7 +21,7 @@ const Home = ({ products }) => {
   // Lọc dữ liệu trực tiếp từ props truyền xuống từ App.jsx
   const allLaptops = products.filter(p => {
     const isCategory = p.category === 'laptop';
-    const isBrand = selectedLaptopBrand === 'Tất cả' || (p.name && p.name.toLowerCase().includes(selectedLaptopBrand.toLowerCase()));
+    const isBrand = selectedLaptopBrand === 'Tất cả' || p.brand === selectedLaptopBrand;
     return isCategory && isBrand;
   });
 
@@ -31,6 +31,10 @@ const Home = ({ products }) => {
     if (p.category !== 'linhkien') return false;
     if (selectedLinhKienBrand === 'Tất cả') return true;
     
+    // Ưu tiên khớp theo trường 'brand' (đã lưu loại linh kiện: Mainboard, Chip, RAM...)
+    if (p.brand === selectedLinhKienBrand) return true;
+
+    // Fallback: Tìm trong tên nếu brand không khớp (cho dữ liệu cũ)
     const name = p.name ? p.name.toLowerCase() : '';
     const cat = selectedLinhKienBrand.toLowerCase();
 
@@ -155,9 +159,9 @@ const Home = ({ products }) => {
               </div>
 
               <div className="mt-6 md:mt-0">
-                <a href="#" className="px-6 py-2 rounded-full border border-gray-100 flex items-center text-sm font-black text-gray-500 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all group scale-95 hover:scale-100">
+                <Link to="/pcs" className="px-6 py-2 rounded-full border border-gray-100 flex items-center text-sm font-black text-gray-500 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all group scale-95 hover:scale-100">
                   KHÁM PHÁ NGAY <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -201,9 +205,9 @@ const Home = ({ products }) => {
               </div>
 
               <div className="mt-6 md:mt-0">
-                <a href="#" className="px-6 py-2 rounded-full border border-gray-100 flex items-center text-sm font-black text-gray-500 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all group scale-95 hover:scale-100">
+                <Link to="/linhkien" className="px-6 py-2 rounded-full border border-gray-100 flex items-center text-sm font-black text-gray-500 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all group scale-95 hover:scale-100">
                   XEM THÊM <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
-                </a>
+                </Link>
               </div>
             </div>
 

@@ -24,6 +24,29 @@ const Customers = ({ products }) => {
   };
 
   useEffect(() => { fetchCustomers(); }, []);
+  
+  const [matchCustomer, setMatchCustomer] = useState(null);
+
+  const handlePhoneChange = (e) => {
+    const val = e.target.value;
+    setFormData({...formData, phone: val});
+    
+    // Tìm khách hàng cũ theo SĐT
+    if (val.length >= 4) {
+        const found = customers.find(c => c.phone === val);
+        if (found) setMatchCustomer(found);
+        else setMatchCustomer(null);
+    } else {
+        setMatchCustomer(null);
+    }
+  };
+
+  const useExistingName = () => {
+    if (matchCustomer) {
+        setFormData({...formData, name: matchCustomer.name});
+        setMatchCustomer(null);
+    }
+  };
 
   const handleChange = (e) => setFormData({...formData, [e.target.name]: e.target.value});
 
@@ -81,7 +104,13 @@ const Customers = ({ products }) => {
               </div>
               <div>
                  <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Số điện thoại</label>
-                 <input required name="phone" value={formData.phone} onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-purple-500" placeholder="09xxxx" />
+                 <input required name="phone" value={formData.phone} onChange={handlePhoneChange} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-purple-500 font-medium" placeholder="09xxxx" />
+                 {matchCustomer && (
+                     <div className="mt-2 text-xs bg-purple-50 text-purple-700 p-2 rounded-lg border border-purple-100 flex justify-between items-center animate-pulse">
+                         <span><i className="fas fa-user-check mr-1"></i> Khách cũ: <b>{matchCustomer.name}</b></span>
+                         <button type="button" onClick={useExistingName} className="bg-purple-600 text-white px-2 py-0.5 rounded font-bold hover:bg-purple-700 transition">Dùng tên này</button>
+                     </div>
+                 )}
               </div>
               <div>
                  <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Ngày mua máy</label>

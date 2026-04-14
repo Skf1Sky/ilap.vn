@@ -82,7 +82,11 @@ const ProductDetail = ({ products }) => {
                 <i className="fas fa-home mr-1"></i> Trang chủ
             </Link> 
             <span className="mx-2 text-gray-300">/</span> 
-            <span className="uppercase font-semibold text-gray-600">{product.category === 'laptop' ? 'Laptop' : 'PC Gaming'}</span>
+            <span className="uppercase font-semibold text-gray-600">
+                {product.category === 'laptop' ? 'Laptop' : 
+                 product.category === 'pc' ? 'PC Gaming' : 
+                 `Linh kiện ${product.platform === 'pc' ? 'PC' : product.platform === 'laptop' ? 'Laptop' : ''}`}
+            </span>
             <span className="mx-2 text-gray-300">/</span>
             <span className="text-primary font-bold truncate">{product.name}</span>
         </div>
@@ -119,13 +123,19 @@ const ProductDetail = ({ products }) => {
             <div className="md:col-span-7">
                <h1 className="text-3xl font-black text-gray-800 mb-2 leading-tight">{product.name}</h1>
                <div className="flex items-center gap-4 text-sm text-gray-600 mb-4 pb-4 border-b border-gray-100">
-                  <span className="bg-gray-100 px-2 py-1 rounded font-semibold text-gray-700">Đã bán: {product.sold || 0}</span>
-                  {product.quantity > 0 && product.quantity < 5 ? (
-                      <span className="text-red-500 font-bold animate-pulse"><i className="fas fa-exclamation-triangle mr-1"></i> Sắp hết hàng (Chỉ còn {product.quantity})</span>
-                  ) : product.quantity > 0 ? (
-                      <span className="text-emerald-600 font-bold"><i className="fas fa-check-circle mr-1"></i> Còn {product.quantity} sản phẩm</span>
+                  {product.category !== 'linhkien' && (
+                    <span className="bg-gray-100 px-2 py-1 rounded font-semibold text-gray-700">Đã bán: {product.sold || 0}</span>
+                  )}
+                  {(!product.inStock || product.quantity <= 0) ? (
+                      <span className="text-red-500 font-bold"><i className="fas fa-times-circle mr-1"></i> Hết hàng thời điểm này</span>
+                  ) : product.quantity < 5 ? (
+                      <span className="text-amber-500 font-bold animate-pulse">
+                        <i className="fas fa-exclamation-triangle mr-1"></i> Sắp hết hàng {product.category !== 'linhkien' && `(Chỉ còn ${product.quantity})`}
+                      </span>
                   ) : (
-                      <span className="text-gray-400 font-bold line-through"><i className="fas fa-times-circle mr-1"></i> Hết hàng</span>
+                      <span className="text-emerald-600 font-bold">
+                        <i className="fas fa-check-circle mr-1"></i> Sẵn hàng tại iLap {product.category !== 'linhkien' && `(Còn ${product.quantity})`}
+                      </span>
                   )}
                </div>
                <div className="bg-gray-50 rounded-lg p-5 mb-6 border border-gray-100 relative overflow-hidden">
@@ -138,17 +148,23 @@ const ProductDetail = ({ products }) => {
                </div>
 
                {/* ... (Phần Quà tặng & Nút mua hàng giữ nguyên) ... */}
-               <div className="border border-dashed border-red-300 bg-red-50/50 rounded-lg p-4 mb-8">
-                  <h4 className="text-red-600 font-bold uppercase text-sm mb-3 flex items-center"><i className="fas fa-gift mr-2 text-lg"></i> Quà tặng & Ưu đãi</h4>
-                  <ul className="text-sm space-y-2 text-gray-700 ml-1">
-                     <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Tặng Balo chống sốc cao cấp.</li>
-                     <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Tặng Chuột không dây Darue</li>
-                  </ul>
-               </div>
+               {product.category !== 'linhkien' && (
+                 <div className="border border-dashed border-red-300 bg-red-50/50 rounded-lg p-4 mb-8">
+                    <h4 className="text-red-600 font-bold uppercase text-sm mb-3 flex items-center"><i className="fas fa-gift mr-2 text-lg"></i> Quà tặng & Ưu đãi</h4>
+                    <ul className="text-sm space-y-2 text-gray-700 ml-1">
+                       <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Tặng Balo chống sốc cao cấp.</li>
+                       <li className="flex items-start"><i className="fas fa-check text-green-500 mt-1 mr-2"></i> Tặng Chuột không dây Darue</li>
+                    </ul>
+                 </div>
+               )}
 
                <div className="flex flex-col sm:flex-row gap-4">
-                  <button disabled={product.quantity <= 0 && !product.inStock} onClick={() => setShowOrderModal(true)} className={`flex-1 text-white py-4 rounded-lg font-bold uppercase shadow-lg transition transform ${product.quantity > 0 || product.inStock ? 'bg-red-600 hover:bg-red-700 shadow-red-600/30 hover:-translate-y-1' : 'bg-gray-400 cursor-not-allowed opacity-70'}`}>
-                     <span className="block text-xl"><i className="fas fa-shopping-cart mr-2"></i> {product.quantity > 0 || product.inStock ? 'Đăng Ký Mua' : 'Hết Hàng Thời Điểm Này'}</span>
+                  <button 
+                    disabled={!product.inStock || product.quantity <= 0} 
+                    onClick={() => setShowOrderModal(true)} 
+                    className={`flex-1 text-white py-4 rounded-lg font-bold uppercase shadow-lg transition transform ${product.inStock && product.quantity > 0 ? 'bg-red-600 hover:bg-red-700 shadow-red-600/30 hover:-translate-y-1' : 'bg-gray-400 cursor-not-allowed opacity-70'}`}
+                  >
+                     <span className="block text-xl"><i className="fas fa-shopping-cart mr-2"></i> {product.inStock && product.quantity > 0 ? 'Đăng Ký Mua' : 'Hết Hàng Thời Điểm Này'}</span>
                      <span className="block text-xs font-normal opacity-80 mt-1">Để lại SĐT, iLap sẽ gọi điện chốt giá tốt nhất</span>
                   </button>
                </div>
@@ -156,42 +172,46 @@ const ProductDetail = ({ products }) => {
           </div>
         </div>
 
-        {/* 3. THÔNG SỐ KỸ THUẬT */}
+        {/* 3. THÔNG SỐ KỸ THUẬT & VIDEO */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                    <h3 className="text-xl font-bold text-gray-800 mb-6 uppercase border-l-4 border-primary pl-3">Thông số kỹ thuật</h3>
-                    <div className="overflow-hidden rounded-lg border border-gray-200">
-                        <table className="w-full text-sm text-left">
-                            <tbody className="divide-y divide-gray-200">
-                                {product.specs && product.specs.map((spec, index) => {
-                                    const labels = product.category === 'laptop' 
-                                        ? ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Màn hình', 'Card đồ họa (VGA)', 'Dung lượng PIN']
-                                        : ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Mainboard', 'Card đồ họa (VGA)', 'Nguồn & Vỏ Case'];
-                                    
-                                    const specLabel = (typeof spec === 'object' && spec.name) ? spec.name : (labels[index] || `Thông số ${index + 1}`);
-                                    const specValue = (typeof spec === 'object') ? spec.value : spec;
+            {/* THÔNG SỐ KỸ THUẬT - Ẩn cho linh kiện */}
+            {product.category !== 'linhkien' && (
+                <div className="lg:col-span-2">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                        <h3 className="text-xl font-bold text-gray-800 mb-6 uppercase border-l-4 border-primary pl-3">Thông số kỹ thuật</h3>
+                        <div className="overflow-hidden rounded-lg border border-gray-200">
+                            <table className="w-full text-sm text-left">
+                                <tbody className="divide-y divide-gray-200">
+                                    {product.specs && product.specs.map((spec, index) => {
+                                        const defaultLabels = product.category === 'laptop' 
+                                            ? ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Màn hình', 'Card đồ họa (VGA)', 'Dung lượng PIN']
+                                            : ['Vi xử lý (CPU)', 'RAM', 'Ổ cứng', 'Mainboard', 'Card đồ họa (VGA)', 'Nguồn & Vỏ Case'];
+                                        
+                                        // Use the name from DB if it exists, otherwise fallback to index-based label
+                                        const specLabel = (typeof spec === 'object' && spec.name) ? spec.name : (defaultLabels[index] || `Thông số ${index + 1}`);
+                                        const specValue = (typeof spec === 'object') ? spec.value : spec;
 
-                                    return (
-                                        <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
-                                            <td className="p-4 font-bold text-gray-600 w-1/3 text-xs uppercase tracking-wider">{specLabel}</td>
-                                            <td className="p-4 text-gray-800 font-medium">{specValue}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                        return (
+                                            <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                                                <td className="p-4 font-bold text-gray-600 w-1/3 text-xs uppercase tracking-wider">{specLabel}</td>
+                                                <td className="p-4 text-gray-800 font-medium">{specValue}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
-            {/* Cột Phải: VIDEO */}
-            <div>
+            {/* Cột Phải: VIDEO - Hiện cho mọi sản phẩm nếu có URL */}
+            <div className={product.category === 'linhkien' ? "lg:col-span-3" : "lg:col-span-1"}>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-[160px]">
-                     <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
                         <i className="fab fa-youtube text-red-600 mr-2 text-2xl"></i> Video Đánh Giá
-                     </h3>
-                     <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-200 shadow-inner bg-black">
+                    </h3>
+                    <div className="w-full aspect-video rounded-lg overflow-hidden border border-gray-200 shadow-inner bg-black">
                         {product.video ? (
                             <iframe 
                                 className="w-full h-full"
@@ -207,7 +227,7 @@ const ProductDetail = ({ products }) => {
                                 <span className="text-xs">Chưa có video review</span>
                             </div>
                         )}
-                     </div>
+                    </div>
                 </div>
             </div>
         </div>
