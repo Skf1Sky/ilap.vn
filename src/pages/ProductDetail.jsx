@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import api from '../api';
 import ProductCard from '../components/ProductCard';
 
 const ProductDetail = ({ products }) => {
   const { id } = useParams(); // id từ URL
+  const navigate = useNavigate();
+  const { addToCart, setIsCartOpen } = useCart();
   
   const [activeImage, setActiveImage] = useState('');
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -161,11 +164,23 @@ const ProductDetail = ({ products }) => {
                <div className="flex flex-col sm:flex-row gap-4">
                   <button 
                     disabled={!product.inStock || product.quantity <= 0} 
-                    onClick={() => setShowOrderModal(true)} 
+                    onClick={() => addToCart(product)} 
+                    className={`flex-1 text-primary bg-primary/10 border border-primary/20 py-4 rounded-lg font-bold uppercase transition transform ${product.inStock && product.quantity > 0 ? 'hover:bg-primary/20 hover:-translate-y-1' : 'opacity-70 cursor-not-allowed border-gray-300 text-gray-500 bg-gray-100'}`}
+                  >
+                     <span className="block text-lg"><i className="fas fa-cart-plus mr-2"></i> Thêm vào giỏ hàng</span>
+                  </button>
+
+                  <button 
+                    disabled={!product.inStock || product.quantity <= 0} 
+                    onClick={() => {
+                        addToCart(product);
+                        setIsCartOpen(false);
+                        navigate('/checkout');
+                    }} 
                     className={`flex-1 text-white py-4 rounded-lg font-bold uppercase shadow-lg transition transform ${product.inStock && product.quantity > 0 ? 'bg-red-600 hover:bg-red-700 shadow-red-600/30 hover:-translate-y-1' : 'bg-gray-400 cursor-not-allowed opacity-70'}`}
                   >
-                     <span className="block text-xl"><i className="fas fa-shopping-cart mr-2"></i> {product.inStock && product.quantity > 0 ? 'Đăng Ký Mua' : 'Hết Hàng Thời Điểm Này'}</span>
-                     <span className="block text-xs font-normal opacity-80 mt-1">Để lại SĐT, iLap sẽ gọi điện chốt giá tốt nhất</span>
+                     <span className="block text-lg"><i className="fas fa-bolt mr-2"></i> Mua Ngay</span>
+                     <span className="block text-xs font-normal opacity-80 mt-1">Giao tận nơi hoặc nhận tại cửa hàng</span>
                   </button>
                </div>
             </div>

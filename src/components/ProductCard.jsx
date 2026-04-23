@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const ProductCard = ({ product }) => {
+  const { addToCart } = useCart();
   const icons = [
     'fa-microchip',       // CPU
     'fa-memory',          // RAM
@@ -127,6 +129,11 @@ const ProductCard = ({ product }) => {
 
         {/* MUA NGAY BUTTON */}
         <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addToCart(product);
+            }}
             className={`w-full py-3.5 rounded-lg font-black uppercase text-sm tracking-[0.1em] transition-all duration-300 flex justify-center items-center gap-2 ${
                 isOutOfStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-primary text-white hover:bg-primary-hover shadow-[0_4px_15px_rgba(30,144,255,0.3)] hover:shadow-[0_8px_25px_rgba(30,144,255,0.5)] transform hover:-translate-y-0.5'
             }`}

@@ -18,6 +18,9 @@ import Customers from './pages/admin/Customers';
 import Login from './pages/admin/Login'; // Nhớ tạo file Login.jsx trước nhé
 import Warranty from './pages/Warranty';
 import StickyCTA from './components/StickyCTA';
+import Checkout from './pages/Checkout';
+import { CartProvider } from './context/CartContext';
+import CartDrawer from './components/CartDrawer';
 
 // Bỏ biến cục bộ API đi vì đã cấu hình trong Service layer
 // Component cuộn lên đầu trang khi chuyển trang
@@ -35,6 +38,7 @@ const PublicLayout = ({ children }) => {
       {children}
       <Footer />
       <StickyCTA />
+      <CartDrawer />
     </div>
   );
 };
@@ -56,8 +60,9 @@ function App() {
   }, [fetchProducts]);
 
   return (
-    <BrowserRouter>
-      <ScrollToTop />
+    <CartProvider>
+      <BrowserRouter>
+        <ScrollToTop />
       <Routes>
         {/* TRANG LOGIN */}
         <Route path="/login" element={<Login />} />
@@ -105,6 +110,12 @@ function App() {
           </PublicLayout>
         } />
 
+        <Route path="/checkout" element={
+          <PublicLayout>
+            <Checkout />
+          </PublicLayout>
+        } />
+
         {/* KHU VỰC ADMIN (CÓ BẢO VỆ) */}
         <Route path="/admin" element={
           <ProtectedRoute>
@@ -127,6 +138,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </CartProvider>
   );
 }
 

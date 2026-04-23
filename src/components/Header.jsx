@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { cartCount, setIsCartOpen } = useCart();
 
   const isHomePage = location.pathname === '/';
 
@@ -89,9 +91,16 @@ const Header = () => {
                     <i className="far fa-heart"></i>
                     <span className="absolute -top-1 -right-1 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)] text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">0</span>
                 </div>
-                <div className={`relative w-10 h-10 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-[15px] transition-all cursor-pointer hover:bg-primary hover:border-primary hover:text-white hover:shadow-[0_0_15px_rgba(30,144,255,0.5)] active:scale-95 text-gray-300`}>
+                <div 
+                  onClick={() => setIsCartOpen(true)}
+                  className={`relative w-10 h-10 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-[15px] transition-all cursor-pointer hover:bg-primary hover:border-primary hover:text-white hover:shadow-[0_0_15px_rgba(30,144,255,0.5)] active:scale-95 text-gray-300`}
+                >
                     <i className="fas fa-shopping-basket"></i>
-                    <span className="absolute -top-1 -right-1 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)] text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">2</span>
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)] text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">
+                        {cartCount}
+                      </span>
+                    )}
                 </div>
             </div>
         </div>
