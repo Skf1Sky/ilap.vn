@@ -79,40 +79,40 @@ const Home = ({ products }) => {
       <Hero />
 
       {/* ================= LAPTOP ZONE ================= */}
-      <section className="relative z-20 px-4 -mt-24 pb-16">
-        <div className="container mx-auto">
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 transition-all duration-300 overflow-hidden">
-            <div className="flex flex-col md:flex-row justify-between items-center p-8 pb-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-2xl shadow-inner">
+      <section className="relative z-20 px-6 -mt-24 mb-20">
+        <div className="max-w-[1760px] mx-auto">
+          <div className="bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
+            <div className="flex flex-col md:flex-row justify-between items-center p-8 pb-4 border-b border-gray-50">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-primary text-2xl border border-gray-100 shadow-sm">
                   <i className="fas fa-laptop"></i>
                 </div>
                 <div>
-                  <span className="block text-xs text-primary/60 uppercase font-black tracking-[0.2em] mb-1">Sản phẩm bán chạy</span>
-                  <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
-                    LAPTOP <span className="text-primary tracking-normal font-light italic text-2xl">BÁN CHẠY</span>
+                  <span className="block text-xs text-gray-400 uppercase font-bold tracking-[0.2em] mb-1">Sản phẩm bán chạy</span>
+                  <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight uppercase">
+                    LAPTOP <span className="text-primary tracking-normal font-light">Nổi Bật</span>
                   </h2>
                 </div>
               </div>
 
               <div className="mt-6 md:mt-0">
-                <Link to="/laptops" className="px-6 py-2 rounded-full border border-gray-100 flex items-center text-sm font-black text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-all group scale-95 hover:scale-100">
+                <Link to="/laptops" className="px-6 py-2.5 rounded-full border border-gray-200 flex items-center text-sm font-black text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-all group shadow-sm">
                   XEM TẤT CẢ <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
                 </Link>
               </div>
             </div>
 
-            <div className="p-8 pt-4">
+            <div className="p-8 pt-6 bg-gray-50/30">
               {/* BRAND SELECTOR LAPTOP - Premium Glass Taps */}
-              <div className="grid grid-cols-2 md:grid-cols-6 mb-10 overflow-hidden rounded-xl border border-gray-100/50 shadow-sm">
+              <div className="grid grid-cols-2 md:grid-cols-6 mb-10 overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
                   {laptopBrands.map(brand => (
                       <button 
                           key={brand}
                           onClick={() => { setSelectedLaptopBrand(brand); setVisibleLaptops(4); }}
-                          className={`py-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all border-r last:border-r-0 ${
+                          className={`py-4 text-[12px] font-black uppercase tracking-[0.1em] transition-all border-r border-gray-100 last:border-r-0 ${
                             selectedLaptopBrand === brand 
-                            ? 'bg-primary text-white shadow-xl scale-[1.02] z-10' 
-                            : 'bg-white text-gray-400 hover:bg-primary/5 hover:text-primary hover:backdrop-blur-sm'
+                            ? 'bg-primary text-white shadow-[0_4px_15px_rgba(30,144,255,0.4)] z-10' 
+                            : 'bg-transparent text-gray-500 hover:bg-gray-50 hover:text-primary'
                           }`}
                       >
                           {brand}
@@ -120,14 +120,14 @@ const Home = ({ products }) => {
                   ))}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-8">
                 {allLaptops.slice(0, visibleLaptops).map(p => <ProductCard key={p._id || p.id} product={p} />)}
               </div>
 
               <div className="text-center mt-12">
                 <button
                   onClick={handleToggleLaptop}
-                  className="inline-flex items-center justify-center w-14 h-14 rounded-full border-2 border-primary/20 text-primary hover:bg-primary hover:text-white transition-all duration-500 shadow-lg hover:shadow-primary/30"
+                  className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-gray-200 text-gray-400 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_15px_rgba(30,144,255,0.4)] transition-all duration-300 bg-white"
                 >
                   {(visibleLaptops >= MAX_DISPLAY || visibleLaptops >= allLaptops.length) ? (
                     <i className="fas fa-chevron-up text-xl"></i>
@@ -142,38 +142,38 @@ const Home = ({ products }) => {
       </section>
 
       {/* ================= PC ZONE ================= */}
-      <section className="px-4 pb-16">
-        <div className="container mx-auto">
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 transition-all duration-300 overflow-hidden">
-            <div className="flex flex-col md:flex-row justify-between items-center p-8 pb-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 text-2xl shadow-inner border border-orange-100">
+      <section className="px-6 mb-20">
+        <div className="max-w-[1760px] mx-auto">
+          <div className="bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
+            <div className="flex flex-col md:flex-row justify-between items-center p-8 pb-4 border-b border-gray-50">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-800 text-2xl border border-gray-100 shadow-sm">
                   <i className="fas fa-desktop"></i>
                 </div>
                 <div>
-                  <span className="block text-xs text-orange-500/60 uppercase font-black tracking-[0.2em] mb-1">Thiết kế & Chơi Game</span>
+                  <span className="block text-xs text-gray-400 uppercase font-bold tracking-[0.2em] mb-1">Thiết kế & Chơi Game</span>
                   <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight uppercase">
-                    PC GAMING <span className="font-light italic text-orange-500 tracking-normal capitalize">Chuyên Nghiệp</span>
+                    PC GAMING <span className="font-light text-gray-500 tracking-normal capitalize">Chuyên Nghiệp</span>
                   </h2>
                 </div>
               </div>
 
               <div className="mt-6 md:mt-0">
-                <Link to="/pcs" className="px-6 py-2 rounded-full border border-gray-100 flex items-center text-sm font-black text-gray-500 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all group scale-95 hover:scale-100">
+                <Link to="/pcs" className="px-6 py-2.5 rounded-full border border-gray-200 flex items-center text-sm font-black text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-all group shadow-sm">
                   KHÁM PHÁ NGAY <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
                 </Link>
               </div>
             </div>
 
-            <div className="p-8 pt-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="p-8 pt-6 bg-gray-50/30">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-8">
                 {allPCs.slice(0, visiblePCs).map(p => <ProductCard key={p._id || p.id} product={p} />)}
               </div>
 
               <div className="text-center mt-12">
                 <button
                   onClick={handleTogglePC}
-                  className="inline-flex items-center justify-center w-14 h-14 rounded-full border-2 border-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-500 shadow-lg"
+                  className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-gray-200 text-gray-400 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_15px_rgba(30,144,255,0.4)] transition-all duration-300 bg-white"
                 >
                   {(visiblePCs >= MAX_DISPLAY || visiblePCs >= allPCs.length) ? (
                     <i className="fas fa-chevron-up text-xl"></i>
@@ -188,40 +188,40 @@ const Home = ({ products }) => {
       </section>
 
       {/* ================= LINH KIỆN ZONE ================= */}
-      <section className="px-4 pb-16">
-        <div className="container mx-auto">
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 transition-all duration-300 overflow-hidden">
-            <div className="flex flex-col md:flex-row justify-between items-center p-8 pb-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-2xl shadow-inner border border-emerald-100">
+      <section className="px-6 mb-20">
+        <div className="max-w-[1760px] mx-auto">
+          <div className="bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
+            <div className="flex flex-col md:flex-row justify-between items-center p-8 pb-4 border-b border-gray-50">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-800 text-2xl border border-gray-100 shadow-sm">
                   <i className="fas fa-microchip"></i>
                 </div>
                 <div>
-                  <span className="block text-xs text-emerald-600/60 uppercase font-black tracking-[0.2em] mb-1">Nâng cấp cấu hình</span>
+                  <span className="block text-xs text-gray-400 uppercase font-bold tracking-[0.2em] mb-1">Nâng cấp cấu hình</span>
                   <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight uppercase">
-                    LINH KIỆN <span className="font-light italic text-emerald-500 tracking-normal capitalize">Máy Tính</span>
+                    LINH KIỆN <span className="font-light text-gray-500 tracking-normal capitalize">Máy Tính</span>
                   </h2>
                 </div>
               </div>
 
               <div className="mt-6 md:mt-0">
-                <Link to="/linhkien" className="px-6 py-2 rounded-full border border-gray-100 flex items-center text-sm font-black text-gray-500 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all group scale-95 hover:scale-100">
+                <Link to="/linhkien" className="px-6 py-2.5 rounded-full border border-gray-200 flex items-center text-sm font-black text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-all group shadow-sm">
                   XEM THÊM <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
                 </Link>
               </div>
             </div>
 
-            <div className="p-8 pt-4">
+            <div className="p-8 pt-6 bg-gray-50/30">
               {/* Linh Kien Category Selector - Glass Taps */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 mb-10 overflow-hidden rounded-xl border border-gray-100/50 shadow-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-5 mb-10 overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
                   {linhKienCategories.map(cat => (
                       <button 
                           key={cat}
                           onClick={() => { setSelectedLinhKienBrand(cat); setVisibleLinhKien(4); }}
-                          className={`py-4 text-[11px] font-black uppercase tracking-[0.2em] transition-all border-r last:border-r-0 ${
+                          className={`py-4 text-[12px] font-black uppercase tracking-[0.1em] transition-all border-r border-gray-100 last:border-r-0 ${
                             selectedLinhKienBrand === cat 
-                            ? 'bg-emerald-600 text-white shadow-xl scale-[1.02] z-10' 
-                            : 'bg-white text-gray-400 hover:bg-emerald-600/5 hover:text-emerald-600 hover:backdrop-blur-sm'
+                            ? 'bg-primary text-white shadow-[0_4px_15px_rgba(30,144,255,0.4)] z-10' 
+                            : 'bg-transparent text-gray-500 hover:bg-gray-50 hover:text-primary'
                           }`}
                       >
                           {cat}
@@ -229,14 +229,14 @@ const Home = ({ products }) => {
                   ))}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-8">
                 {allLinhKien.slice(0, visibleLinhKien).map(p => <ProductCard key={p._id || p.id} product={p} />)}
               </div>
 
               <div className="text-center mt-12">
                 <button
                   onClick={handleToggleLinhKien}
-                  className="inline-flex items-center justify-center w-14 h-14 rounded-full border-2 border-emerald-600/20 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all duration-500 shadow-lg"
+                  className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-gray-200 text-gray-400 hover:bg-primary hover:text-white hover:border-primary hover:shadow-[0_4px_15px_rgba(30,144,255,0.4)] transition-all duration-300 bg-white"
                 >
                   {(visibleLinhKien >= MAX_DISPLAY || visibleLinhKien >= allLinhKien.length) ? (
                     <i className="fas fa-chevron-up text-xl"></i>

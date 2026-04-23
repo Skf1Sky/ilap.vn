@@ -7,9 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#007AFF',       // Premium iOS/Modern Blue
-        'primary-hover': '#005BBF',
-        dark: '#1b1b1b',
+        primary: '#1e90ff',       // Premium Solid Blue
+        'primary-hover': '#1a81e5',
+        dark: '#111111',
         graybody: '#f4f4f7'       // Softer background
       },
       fontFamily: {

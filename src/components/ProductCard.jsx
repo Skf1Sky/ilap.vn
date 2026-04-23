@@ -24,10 +24,10 @@ const ProductCard = ({ product }) => {
     const isOutOfStock = !product.inStock || product.quantity <= 0;
 
     return (
-    <div className={`bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-2xl hover:border-primary/20 transition-all duration-500 group h-full flex flex-col scale-[0.98] hover:scale-100 ${isOutOfStock ? 'opacity-75 grayscale-[0.5]' : ''}`}>
+    <div className={`bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)] hover:border-primary/20 transition-all duration-500 group h-full flex flex-col hover:-translate-y-2 ${isOutOfStock ? 'opacity-75 grayscale-[0.5]' : ''}`}>
       
       {/* ẢNH SẢN PHẨM */}
-      <div className="relative h-[220px] bg-gray-100 overflow-hidden">
+      <div className="relative h-[280px] bg-gray-50 overflow-hidden">
         {product.condition && (
           <span className={`absolute top-3 left-3 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full z-10 shadow-sm ${
             product.condition === 'New' ? 'bg-emerald-500' : 
@@ -105,25 +105,35 @@ const ProductCard = ({ product }) => {
         {/* REMOVED TỒN KHO & ĐÃ BÁN */}
         
         {/* GIÁ & RATING */}
-        <div className="flex justify-between items-center pt-3 mt-auto border-t border-gray-100">
+        <div className="flex justify-between items-center pt-3 mt-auto border-t border-gray-100 mb-4">
           <div className="flex flex-col">
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-gray-400 text-[11px] line-through font-medium">
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
               </span>
             )}
-            <span className="text-red-600 font-bold text-xl leading-tight">
+            <span className="text-red-600 font-black text-[22px] leading-tight">
               {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
             </span>
           </div>
           <div className={`text-[10px] font-black px-3 py-1 rounded-full border ${
             isOutOfStock 
               ? 'text-red-600 bg-red-50 border-red-100' 
-              : 'text-emerald-600 bg-emerald-50 border-emerald-100'
+              : 'text-gray-500 bg-gray-50 border-gray-200'
           }`}>
             {isOutOfStock ? 'HẾT HÀNG' : 'SẴN HÀNG'}
           </div>
         </div>
+
+        {/* MUA NGAY BUTTON */}
+        <button 
+            className={`w-full py-3.5 rounded-lg font-black uppercase text-sm tracking-[0.1em] transition-all duration-300 flex justify-center items-center gap-2 ${
+                isOutOfStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-primary text-white hover:bg-primary-hover shadow-[0_4px_15px_rgba(30,144,255,0.3)] hover:shadow-[0_8px_25px_rgba(30,144,255,0.5)] transform hover:-translate-y-0.5'
+            }`}
+            disabled={isOutOfStock}
+        >
+            <i className="fas fa-shopping-cart"></i> Mua ngay
+        </button>
       </div>
     </div>
   );
