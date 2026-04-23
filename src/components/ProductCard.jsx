@@ -119,7 +119,7 @@ const ProductCard = ({ product }) => {
           <div className={`text-[10px] font-black px-3 py-1 rounded-full border ${
             isOutOfStock 
               ? 'text-red-600 bg-red-50 border-red-100' 
-              : 'text-gray-500 bg-gray-50 border-gray-200'
+              : 'text-emerald-600 bg-emerald-50 border-emerald-100'
           }`}>
             {isOutOfStock ? 'HẾT HÀNG' : 'SẴN HÀNG'}
           </div>
