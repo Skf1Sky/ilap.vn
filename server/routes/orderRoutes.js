@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
 const { verifyToken, checkRole } = require('../middleware/authMiddleware');
+const { orderLimiter } = require('../middleware/rateLimiter');
+const { validate, orderSchema } = require('../middleware/validator');
 
 // Khách hàng tạo đơn không cần đăng nhập
-router.post('/', orderController.createOrder);
+router.post('/', orderLimiter, validate(orderSchema), orderController.createOrder);
 
 // Admin quản lý
 router.get('/', verifyToken, checkRole(['admin']), orderController.getOrders);

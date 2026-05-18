@@ -1,6 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const cookieParser = require('cookie-parser');
 
 // Import cấu hình external modules
 const { initMinioBucket } = require('./config/minio');
@@ -14,16 +18,31 @@ const statsRoutes = require('./routes/statsRoutes');
 
 const app = express();
 
-// 1. Cấu hình CORS mở rộng - Đặt ngay đầu tiên
+// 1. Bảo mật Headers và NoSQL Injection
+app.use(helmet());
+app.use(mongoSanitize());
+
+// 2. Cookie parser
+app.use(cookieParser());
+
+// 3. Cấu hình CORS an toàn
+const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : ['http://localhost:5173'];
 app.use(cors({
-  origin: '*', 
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 
-// 2. Kết nối MongoDB
-const MONGO_URL = "mongodb://admin:Thienvip1@192.168.1.30:27017/ilap_shop?authSource=admin";
+// 4. Kết nối MongoDB
+const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/ilap_shop";
 mongoose.connect(MONGO_URL)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
@@ -46,9 +65,6 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/stats', statsRoutes);
 
-
-app.use('/api/stats', statsRoutes);
-
 //  Them doan nay
 const path = require("path");
 
@@ -65,7 +81,7 @@ app.use((req, res, next) => {
 
 
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server up tại http://192.168.1.20:${PORT}`);
+  console.log(`🚀 Server up tại port ${PORT}`);
 });

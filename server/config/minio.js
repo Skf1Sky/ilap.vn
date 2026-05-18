@@ -1,11 +1,11 @@
 const Minio = require('minio');
 
 const minioClient = new Minio.Client({
-    endPoint: '192.168.1.40', 
+    endPoint: process.env.MINIO_ENDPOINT || '192.168.1.40', 
     port: 9000,
     useSSL: false, // Trong mạng LAN dùng false
-    accessKey: 'Lv58H5x4PiM9dnQcuYgt', 
-    secretKey: 'CKKYXEZ3HuVAINXIQynBb3eIdGoyX0LPa8B1Vjj6', 
+    accessKey: process.env.MINIO_ACCESS_KEY || 'Lv58H5x4PiM9dnQcuYgt', 
+    secretKey: process.env.MINIO_SECRET_KEY || 'CKKYXEZ3HuVAINXIQynBb3eIdGoyX0LPa8B1Vjj6', 
     pathStyle: true 
 });
 
